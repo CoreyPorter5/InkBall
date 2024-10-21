@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">InkBall_Assignment_INFO1113</a> &gt; <a href="index.source.html" class="el_package">inkball</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package inkball;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+import java.io.*;
+import java.util.*;
+
+public class App extends PApplet {
+
+    public static final int CELLSIZE = 32; //8;
+    public static final int CELLHEIGHT = 32;
+
+    public static final int CELLAVG = 32;
+    public static final int TOPBAR = 64;
+<span class="fc" id="L25">    public static int WIDTH = 576; //CELLSIZE*BOARD_WIDTH;</span>
+<span class="fc" id="L26">    public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;</span>
+<span class="fc" id="L27">    public static final int BOARD_WIDTH = WIDTH/CELLSIZE;</span>
+    public static final int BOARD_HEIGHT = 20;
+
+    public static final int INITIAL_PARACHUTES = 1;
+
+    public static final int FPS = 30;
+
+    private String configPath;
+    private int currentLevel;
+    private JSONArray levels;
+    private Board board;
+    //private Score score;
+    //private TimerClock timer;
+
+    public List&lt;PlayerLine&gt; playerLines;
+    private PlayerLine currentLine;
+
+<span class="fc" id="L44">    private HashMap&lt;String, PImage&gt; sprites = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L46">    public static Random random = new Random();</span>
+	
+	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
+
+<span class="fc" id="L50">    public App() {</span>
+<span class="fc" id="L51">        this.configPath = &quot;config.json&quot;;</span>
+<span class="fc" id="L52">        this.currentLevel = 0;</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Initialise the setting of the window size.
+     */
+	@Override
+    public void settings() {
+<span class="fc" id="L60">        size(WIDTH, HEIGHT);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Load all resources such as images. Initialise the elements such as the player and map elements.
+     */
+	@Override
+    public void setup() {
+<span class="fc" id="L68">        frameRate(FPS);</span>
+
+<span class="fc" id="L70">        playerLines = new ArrayList&lt;&gt;();</span>
+
+
+<span class="fc" id="L73">        String[] spriteNames = new String[]{</span>
+                &quot;ball0&quot;,
+                &quot;ball1&quot;,
+                &quot;ball2&quot;,
+                &quot;ball3&quot;,
+                &quot;ball4&quot;,
+                &quot;entrypoint&quot;,
+                &quot;hole0&quot;,
+                &quot;hole1&quot;,
+                &quot;hole2&quot;,
+                &quot;hole3&quot;,
+                &quot;hole4&quot;,
+                &quot;tile&quot;,
+                &quot;wall0&quot;,
+                &quot;wall1&quot;,
+                &quot;wall2&quot;,
+                &quot;wall3&quot;,
+                &quot;wall4&quot;
+        };
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (String sprite : spriteNames) {</span>
+<span class="fc" id="L94">            PImage img = loadImage(&quot;inkball/&quot; + sprite + &quot;.png&quot;);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            if (img == null) {</span>
+<span class="nc" id="L96">                System.err.println(&quot;Error loading image: &quot; + sprite);</span>
+            } else {
+<span class="fc" id="L98">                sprites.put(sprite, img);</span>
+            }
+        }
+
+
+<span class="fc" id="L103">        loadLevelData();</span>
+
+
+
+
+
+
+
+
+
+
+
+		//See PApplet javadoc:
+
+
+
+
+
+
+
+
+
+
+
+		// the image is loaded from relative path: &quot;src/main/resources/inkball/...&quot;
+		/*try {
+            result = loadImage(URLDecoder.decode(this.getClass().getResource(filename+&quot;.png&quot;).getPath(), StandardCharsets.UTF_8.name()));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }*/
+<span class="fc" id="L133">    }</span>
+
+    private void loadLevelData(){
+<span class="fc" id="L136">        JSONObject config = loadJSONObject(configPath);</span>
+<span class="fc" id="L137">        levels = config.getJSONArray(&quot;levels&quot;);</span>
+<span class="fc" id="L138">        board = new Board(levels.getJSONObject(currentLevel).getString(&quot;layout&quot;), this.sprites, this);</span>
+
+
+        //score = new Score();
+        //timer = new TimerClock(levels.getJSONObject(currentLevel).getInt(&quot;time&quot;));
+
+
+
+<span class="fc" id="L146">        int score_increase_from_hole_capture_modifier = levels.getJSONObject(currentLevel).getInt(&quot;score_increase_from_hole_capture_modifier&quot;);</span>
+<span class="fc" id="L147">        int score_decrease_from_wrong_hole_modifier = levels.getJSONObject(currentLevel).getInt(&quot;score_decrease_from_wrong_hole_modifier&quot;);</span>
+<span class="fc" id="L148">        ArrayList&lt;String&gt; ballList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L150">        int num_of_balls = levels.getJSONObject(currentLevel).getJSONArray(&quot;balls&quot;).size();</span>
+
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        for(int i = 0; i &lt; num_of_balls; i++){</span>
+<span class="fc" id="L153">            ballList.add(levels.getJSONObject(currentLevel).getJSONArray(&quot;balls&quot;).getString(i));</span>
+        }
+
+<span class="fc" id="L156">    }</span>
+
+    public void updateLevel(){
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if(currentLevel &lt; levels.size() - 1) {</span>
+<span class="nc" id="L160">            currentLevel++;</span>
+<span class="nc" id="L161">            loadLevelData();</span>
+        }
+<span class="nc" id="L163">    }</span>
+
+    /**
+     * Receive key pressed signal from the keyboard.
+     */
+	@Override
+    public void keyPressed(KeyEvent event){
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if(event.getKey() == ' '){</span>
+<span class="nc" id="L171">            System.out.println(&quot;Space pressed&quot;);</span>
+        }
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        else if(event.getKey() == 'r'){</span>
+<span class="nc" id="L175">            loadLevelData();</span>
+<span class="nc" id="L176">            System.out.println(&quot;R pressed&quot;);</span>
+        }
+        
+<span class="nc" id="L179">    }</span>
+
+    /**
+     * Receive key released signal from the keyboard.
+     */
+	@Override
+    public void keyReleased(){
+
+        
+<span class="nc" id="L188">    }</span>
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if(e.getButton() == LEFT){</span>
+<span class="nc" id="L193">            currentLine = new PlayerLine();</span>
+<span class="nc" id="L194">            currentLine.addPoint(e.getX(), e.getY());</span>
+<span class="nc" id="L195">            playerLines.add(currentLine);</span>
+
+
+        }
+
+<span class="nc" id="L200">    }</span>
+	
+	@Override
+    public void mouseDragged(MouseEvent e) {
+<span class="nc bnc" id="L204" title="All 4 branches missed.">        if(e.getButton() == LEFT &amp;&amp; currentLine != null){</span>
+<span class="nc" id="L205">            currentLine.addPoint(e.getX(), e.getY());</span>
+        }
+
+        // add line segments to player-drawn line object if left mouse button is held
+		
+		// remove player-drawn line object if right mouse button is held 
+		// and mouse position collides with the line
+<span class="nc" id="L212">    }</span>
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+<span class="pc bpc" id="L216" title="1 of 4 branches missed.">        if (e.getButton() == LEFT &amp;&amp; e.isControlDown()) {</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">            for (int i = 0; i &lt; playerLines.size(); i++) {</span>
+<span class="fc" id="L218">                PlayerLine line = playerLines.get(i);</span>
+<span class="fc" id="L219">                List&lt;PVector&gt; points = line.getPoints();</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">                for (int j = 0; j &lt; points.size() - 1; j++) {</span>
+<span class="fc" id="L221">                    PVector p1 = points.get(j);</span>
+<span class="fc" id="L222">                    PVector p2 = points.get(j + 1);</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">                    if (line.mouseCollideWithLine(e.getX(), e.getY(), (int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y)) {</span>
+<span class="fc" id="L224">                        playerLines.remove(i);</span>
+<span class="fc" id="L225">                        break;</span>
+                    }
+                }
+            }
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        } else if (e.getButton() == LEFT) {</span>
+<span class="nc" id="L230">            currentLine = null;</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        } else if (e.getButton() == RIGHT) {</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">            for (int i = 0; i &lt; playerLines.size(); i++) {</span>
+<span class="fc" id="L233">                PlayerLine line = playerLines.get(i);</span>
+<span class="fc" id="L234">                List&lt;PVector&gt; points = line.getPoints();</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">                for (int j = 0; j &lt; points.size() - 1; j++) {</span>
+<span class="fc" id="L236">                    PVector p1 = points.get(j);</span>
+<span class="fc" id="L237">                    PVector p2 = points.get(j + 1);</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">                    if (line.mouseCollideWithLine(e.getX(), e.getY(), (int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y)) {</span>
+<span class="fc" id="L239">                        playerLines.remove(i);</span>
+<span class="fc" id="L240">                        break;</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L245">    }</span>
+
+    /**
+     * Draw all elements in the game by current frame.
+     */
+	@Override
+    public void draw() {
+
+<span class="fc" id="L253">        board.display(this);</span>
+
+
+
+
+<span class="fc" id="L258">        stroke(0);</span>
+<span class="fc" id="L259">        strokeWeight(10);</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        for (PlayerLine line : playerLines) {</span>
+<span class="nc" id="L261">            List&lt;PVector&gt; points = line.getPoints();</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">            for (int i = 0; i &lt; points.size() - 1; i++) {</span>
+<span class="nc" id="L263">                PVector p1 = points.get(i);</span>
+<span class="nc" id="L264">                PVector p2 = points.get(i + 1);</span>
+<span class="nc bnc" id="L265" title="All 4 branches missed.">                if(p1.y &gt; TOPBAR + 4 &amp;&amp; p2.y &gt; TOPBAR + 4){</span>
+<span class="nc" id="L266">                    line(p1.x, p1.y, p2.x, p2.y);</span>
+                }
+            }
+<span class="nc" id="L269">        }</span>
+
+<span class="fc bfc" id="L271" title="All 2 branches covered.">        for(Ball ball : board.getBalls()){</span>
+<span class="fc" id="L272">            ball.update();</span>
+<span class="fc" id="L273">            ball.display(this);</span>
+<span class="fc" id="L274">        }</span>
+
+
+        //score.display();
+        //timer.display();
+        //game_over.display();
+
+        //updateable interface -&gt; score, balls, ball tracker, time
+
+        
+
+        //----------------------------------
+        //display Board for current level: //Includes GUI
+        //----------------------------------
+        //TODO
+
+        //----------------------------------
+        //display score
+        //----------------------------------
+        //TODO
+        
+		//----------------------------------
+        //----------------------------------
+		//display game end message
+
+<span class="fc" id="L299">    }</span>
+
+
+    public static void main(String[] args) {
+<span class="nc" id="L303">        PApplet.main(&quot;inkball.App&quot;);</span>
+<span class="nc" id="L304">    }</span>
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

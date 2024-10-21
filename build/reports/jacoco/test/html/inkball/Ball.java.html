@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ball.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">InkBall_Assignment_INFO1113</a> &gt; <a href="index.source.html" class="el_package">inkball</a> &gt; <span class="el_source">Ball.java</span></div><h1>Ball.java</h1><pre class="source lang-java linenums">package inkball;
+
+import processing.core.PApplet;
+
+
+public class Ball extends GameObject implements Updatable {
+
+    private float x_velocity, y_velocity;
+    private App app;
+    private CollisionHandler collision;
+
+
+    public Ball(int x, int y, int colour, Board board, App app) {
+<span class="fc" id="L14">        super(x * App.CELLSIZE + Board.BALLRADIUS, y * App.CELLSIZE + App.TOPBAR + Board.BALLRADIUS, board.getBallImage(colour), board);</span>
+<span class="fc bfc" id="L15" title="All 2 branches covered.">        this.x_velocity = (App.random.nextBoolean() ? 2 : -2);</span>
+<span class="fc bfc" id="L16" title="All 2 branches covered.">        this.y_velocity = (App.random.nextBoolean() ? 2 : -2);</span>
+<span class="fc" id="L17">        this.app = app;</span>
+
+
+
+
+<span class="fc" id="L22">    }</span>
+
+
+
+
+
+    public double getX_velocity(){
+<span class="fc" id="L29">        return this.x_velocity;</span>
+    }
+
+    public double getY_velocity(){
+<span class="fc" id="L33">        return this.y_velocity;</span>
+    }
+
+    public void setX_velocity(float x_velocity){
+<span class="fc" id="L37">        this.x_velocity = x_velocity;</span>
+<span class="fc" id="L38">    }</span>
+
+    public void setY_velocity(float y_velocity){
+<span class="fc" id="L41">        this.y_velocity = y_velocity;</span>
+<span class="fc" id="L42">    }</span>
+
+
+
+
+
+
+
+
+    @Override
+    public void update(){
+<span class="fc" id="L53">        board.testForCollisions(this);</span>
+
+<span class="fc" id="L55">        x +=  x_velocity;</span>
+<span class="fc" id="L56">        y +=  y_velocity;</span>
+
+
+        //Handles collisions with boarder
+
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">        if (x - Board.BALLRADIUS &lt; 0 || x + Board.BALLRADIUS &gt; App.WIDTH) {</span>
+<span class="fc" id="L62">            x_velocity *= -1;</span>
+        }
+<span class="pc bpc" id="L64" title="1 of 4 branches missed.">        if (y - Board.BALLRADIUS &lt; App.TOPBAR || y + Board.BALLRADIUS &gt; App.HEIGHT) {</span>
+<span class="fc" id="L65">            y_velocity *= -1;</span>
+        }
+
+
+
+
+
+
+<span class="fc" id="L73">    }</span>
+
+
+    @Override
+    public void display(PApplet app) {
+<span class="fc" id="L78">        app.image(getImage(), (float)(x - Board.BALLRADIUS), (float)(y - Board.BALLRADIUS), Board.BALLRADIUS * 2, Board.BALLRADIUS * 2);</span>
+
+
+<span class="fc" id="L81">    }</span>
+
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

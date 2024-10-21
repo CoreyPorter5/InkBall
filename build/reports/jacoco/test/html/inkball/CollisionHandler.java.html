@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CollisionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">InkBall_Assignment_INFO1113</a> &gt; <a href="index.source.html" class="el_package">inkball</a> &gt; <span class="el_source">CollisionHandler.java</span></div><h1>CollisionHandler.java</h1><pre class="source lang-java linenums">package inkball;
+
+import processing.core.PVector;
+import java.util.List;
+
+
+
+
+public class CollisionHandler {
+
+    private App app;
+    private Board board;
+<span class="fc" id="L13">    protected final int ADJUSTMENT = 6;</span>
+
+
+<span class="fc" id="L16">    public CollisionHandler(App app, Board board){</span>
+<span class="fc" id="L17">        this.app = app;</span>
+<span class="fc" id="L18">        this.board = board;</span>
+<span class="fc" id="L19">    }</span>
+
+
+    public void testForCollisions(Ball ball) {
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        for (Wall wall : board.getWalls()) {</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">            if (handleCollisionWithWall(ball, wall)) {</span>
+<span class="nc" id="L25">                break;</span>
+            }
+
+<span class="fc" id="L28">        }</span>
+
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        for (PlayerLine line : app.playerLines) {</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">            if (handleCollisionwithPlayerLines(ball, line)) {</span>
+<span class="fc" id="L32">                break;</span>
+            }
+<span class="nc" id="L34">        }</span>
+
+<span class="fc" id="L36">    }</span>
+
+
+
+
+    public boolean handleCollisionwithPlayerLines(Ball ball, PlayerLine playerLine) {
+<span class="fc" id="L42">        PVector ballNextPos = new PVector((float) (ball.getX() + ball.getX_velocity()), (float) (ball.getY() + ball.getY_velocity()));</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        for(int i = 0; i &lt; playerLine.getPoints().size() - 1; i++) {</span>
+<span class="fc" id="L44">            PVector p1 = playerLine.getPoints().get(i);</span>
+<span class="fc" id="L45">            PVector p2 = playerLine.getPoints().get(i + 1);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">            if (isCollidingWithPlayerLineSegment(ballNextPos, p1, p2)) {</span>
+<span class="fc" id="L47">                handleCollisionResponse(ball, p1, p2, ballNextPos);</span>
+<span class="fc" id="L48">                app.playerLines.remove(playerLine);</span>
+<span class="fc" id="L49">                return true;</span>
+            }
+        }
+<span class="nc" id="L52">        return false;</span>
+    }
+
+
+
+    private boolean handleCollisionWithWall(Ball ball, Wall wall) {
+<span class="fc" id="L58">        PVector ballNextPos = new PVector((float) (ball.getX() + ball.getX_velocity()), (float) (ball.getY() + ball.getY_velocity()));</span>
+
+
+<span class="fc" id="L61">        PVector[] points = {</span>
+<span class="fc" id="L62">                new PVector(wall.getX(), wall.getY()),</span>
+<span class="fc" id="L63">                new PVector(wall.getX() + App.CELLSIZE, wall.getY()),</span>
+<span class="fc" id="L64">                new PVector(wall.getX() + App.CELLSIZE, wall.getY() + App.CELLSIZE),</span>
+<span class="fc" id="L65">                new PVector(wall.getX(), wall.getY() + App.CELLSIZE)</span>
+        };
+
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for (int i = 0; i &lt; points.length; i++) {</span>
+<span class="fc" id="L70">            PVector p1 = points[i];</span>
+<span class="fc" id="L71">            PVector p2 = points[(i + 1) % points.length];</span>
+
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">            if (isCollidingWithLineSegment(ballNextPos, p1, p2)) {</span>
+<span class="nc" id="L74">                handleCollisionResponse(ball, p1, p2, ballNextPos);</span>
+<span class="nc" id="L75">                return true;</span>
+            }
+        }
+
+
+<span class="fc" id="L80">        return false;</span>
+
+    }
+
+
+
+
+    protected boolean isCollidingWithLineSegment(PVector ballPos, PVector p1, PVector p2) {
+<span class="fc" id="L88">        float distanceP1Ball = PVector.dist(p1, ballPos);</span>
+<span class="fc" id="L89">        float distanceP2Ball = PVector.dist(p2, ballPos);</span>
+<span class="fc" id="L90">        float distanceP1P2 = PVector.dist(p1, p2);</span>
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        return (distanceP1Ball + distanceP2Ball) &lt; (distanceP1P2 + ADJUSTMENT);</span>
+    }
+
+    protected boolean isCollidingWithPlayerLineSegment(PVector ballPos, PVector p1, PVector p2) {
+<span class="fc" id="L96">        float distanceP1Ball = PVector.dist(p1, ballPos);</span>
+<span class="fc" id="L97">        float distanceP2Ball = PVector.dist(p2, ballPos);</span>
+<span class="fc" id="L98">        float distanceP1P2 = PVector.dist(p1, p2);</span>
+
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        return (distanceP1Ball + distanceP2Ball) &lt; (distanceP1P2 + Board.BALLRADIUS + ADJUSTMENT);</span>
+    }
+
+
+    private void handleCollisionResponse(Ball ball, PVector p1, PVector p2, PVector ballPos) {
+
+<span class="fc" id="L106">        double dx = p2.x - p1.x;</span>
+<span class="fc" id="L107">        double dy = p2.y - p1.y;</span>
+<span class="fc" id="L108">        PVector normal1 = new PVector((float) -dy, (float) dx).normalize();</span>
+<span class="fc" id="L109">        PVector normal2 = new PVector((float) dy, (float) -dx).normalize();</span>
+
+<span class="fc" id="L111">        PVector chosenNormal = chooseCloserNormal(p1, p2, normal1, normal2, ballPos);</span>
+
+<span class="fc" id="L113">        double dotProduct = PVector.dot(chosenNormal, new PVector((float) ball.getX_velocity(), (float) ball.getY_velocity()));</span>
+<span class="fc" id="L114">        double xVelocity = ball.getX_velocity() - 2 * dotProduct * chosenNormal.x;</span>
+<span class="fc" id="L115">        double yVelocity = ball.getY_velocity() - 2 * dotProduct * chosenNormal.y;</span>
+
+
+
+<span class="fc" id="L119">        ball.setX_velocity((float) xVelocity);</span>
+<span class="fc" id="L120">        ball.setY_velocity((float) yVelocity);</span>
+
+
+
+
+
+<span class="fc" id="L126">    }</span>
+
+
+
+    protected PVector chooseCloserNormal(PVector p1, PVector p2, PVector normal1, PVector normal2, PVector ballPos) {
+<span class="fc" id="L131">        PVector midPoint = PVector.add(p1, p2).mult(0.5f);</span>
+
+<span class="fc" id="L133">        PVector testPoint1 = PVector.add(midPoint, normal1);</span>
+<span class="fc" id="L134">        PVector testPoint2 = PVector.add(midPoint, normal2);</span>
+
+<span class="fc" id="L136">        float dist1 = PVector.dist(testPoint1, ballPos);</span>
+<span class="fc" id="L137">        float dist2 = PVector.dist(testPoint2, ballPos);</span>
+
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (dist1 &lt; dist2) {</span>
+<span class="fc" id="L140">            return normal1;</span>
+        } else {
+<span class="nc" id="L142">            return normal2;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
