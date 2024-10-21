@@ -82,7 +82,10 @@ public class CollisionHandler {
     }
 
 
-        private boolean handleCollisionWithWall (Ball ball, Wall wall){
+        public boolean handleCollisionWithWall (Ball ball, Wall wall){
+
+
+
             PVector ballNextPos = new PVector((float) (ball.getX() + ball.getX_velocity()), (float) (ball.getY() + ball.getY_velocity()));
 
 
@@ -99,6 +102,7 @@ public class CollisionHandler {
                 PVector p2 = points[(i + 1) % points.length];
 
                 if (isCollidingWithLineSegment(ballNextPos, p1, p2)) {
+                    ball.changeColour(wall.getColour());
                     handleCollisionResponse(ball, p1, p2, ballNextPos);
                     return true;
                 }

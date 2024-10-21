@@ -32,7 +32,7 @@ public class Board {
 
     public Board(String layoutPath, HashMap<String, PImage> sprites, App app) {
         //this.layoutPath = layoutPath;
-        this.layoutPath = "level2.txt";
+        this.layoutPath = layoutPath;
         this.layout = new char[18][18];
         this.holes = new ArrayList<>();
         this.balls = new ArrayList<>();
@@ -86,6 +86,34 @@ public class Board {
             System.out.println("File not found");
         }
 
+        for (int row = 0; row < layout.length; row++) {
+            for (int col = 0; col < layout[row].length; col++) {
+                char tile = layout[row][col];
+
+                if (tile == 'h' || tile == 'b') {
+                    continue;
+                }
+
+                if (tile == 'X') {
+                    walls.add(new Wall(col, row, sprites.get("wall0"), this, 0));
+                } else if (tile == '1') {
+                    walls.add(new Wall(col, row, sprites.get("wall1"), this, 1));
+                } else if (tile == '2') {
+                    walls.add(new Wall(col, row, sprites.get("wall2"), this, 2));
+                } else if (tile == '3') {
+                    walls.add(new Wall(col, row, sprites.get("wall3"), this, 3));
+                } else if (tile == '4') {
+                    walls.add(new Wall(col, row, sprites.get("wall4"), this, 4));
+                } else if (tile == 'S') {
+                    spawners.add(new Spawner(col, row, sprites.get("entrypoint"), this));
+                }
+            }
+        }
+
+
+
+
+
 
         // Load the layout from the file and populate the layout array
 
@@ -94,8 +122,7 @@ public class Board {
 
     public void display(PApplet app) {
         // Display the board based on the layout array
-        walls.clear();
-        spawners.clear();
+
 
         //Displays rest
         for (int row = 0; row < layout.length; row++) {
@@ -107,22 +134,11 @@ public class Board {
                     continue;
                 }
 
-                if (tile == 'X') {
-                    walls.add(new Wall(col, row, sprites.get("wall0"), this));
-                } else if (tile == '1') {
-                    walls.add(new Wall(col, row, sprites.get("wall1"), this));
-                } else if (tile == '2') {
-                    walls.add(new Wall(col, row, sprites.get("wall2"), this));
-                } else if (tile == '3') {
-                    walls.add(new Wall(col, row, sprites.get("wall3"), this));
-                } else if (tile == '4') {
-                    walls.add(new Wall(col, row, sprites.get("wall4"), this));
-                } else if (tile == ' ' || tile == 'b') {
+
+                else if (tile == ' ' || tile == 'b') {
                     img = sprites.get("tile");
                     app.image(img, col * App.CELLSIZE, row * App.CELLSIZE + App.TOPBAR, App.CELLSIZE, App.CELLSIZE);
 
-                } else if (tile == 'S') {
-                    spawners.add(new Spawner(col, row, sprites.get("entrypoint"), this));
                 }
 
 
@@ -173,6 +189,14 @@ public class Board {
 
     public ArrayList<Wall> getWalls() {
         return walls;
+    }
+
+    public ArrayList<Spawner> getSpawners() {
+        return spawners;
+    }
+
+    public void addBall(Ball ball) {
+        balls.add(ball);
     }
 
     public void testForCollisions(Ball ball) {

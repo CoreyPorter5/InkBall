@@ -27,6 +27,8 @@ public class App extends PApplet {
     public static final int BOARD_WIDTH = WIDTH/CELLSIZE;
     public static final int BOARD_HEIGHT = 20;
 
+    private boolean paused = false;
+
     public static final int INITIAL_PARACHUTES = 1;
 
     public static final int FPS = 30;
@@ -35,8 +37,20 @@ public class App extends PApplet {
     private int currentLevel;
     private JSONArray levels;
     private Board board;
-    //private Score score;
-    //private TimerClock timer;
+    private int score;
+    private Timer timer;
+    private ScoreBoard scoreBoard;
+    private BallQueue ballQueue;
+    private ScoreBoard scoreboard;
+    private int spawnInterval;
+    private float countdown;
+    private char lastKey;
+
+    private float scoreIncreaseModifier;
+    private float scoreDecreaseModifier;
+
+    private static final int[] SCORE_INCREASE = new int[5];
+    private static final int[] SCORE_DECREASE = new int[5];
 
     public List<PlayerLine> playerLines;
     private PlayerLine currentLine;
@@ -70,6 +84,7 @@ public class App extends PApplet {
         playerLines = new ArrayList<>();
 
 
+
         String[] spriteNames = new String[]{
                 "ball0",
                 "ball1",
@@ -101,6 +116,7 @@ public class App extends PApplet {
 
 
         loadLevelData();
+        countdown = spawnInterval * App.FPS;
 
 
 
@@ -132,27 +148,119 @@ public class App extends PApplet {
         }*/
     }
 
+    public PImage getBallImage(String ballColor){
+        switch (ballColor) {
+            case "grey":
+                return sprites.get("ball0");
+            case "orange":
+                return sprites.get("ball1");
+            case "blue":
+                return sprites.get("ball2");
+            case "green":
+                return sprites.get("ball3");
+            case "yellow":
+                return sprites.get("ball4");
+            default:
+                return null;
+        }
+    }
+
+
     private void loadLevelData(){
         JSONObject config = loadJSONObject(configPath);
         levels = config.getJSONArray("levels");
         board = new Board(levels.getJSONObject(currentLevel).getString("layout"), this.sprites, this);
+        spawnInterval = levels.getJSONObject(currentLevel).getInt("spawn_interval");
 
 
-        //score = new Score();
-        //timer = new TimerClock(levels.getJSONObject(currentLevel).getInt("time"));
+        timer = new Timer(levels.getJSONObject(currentLevel).getInt("time"), this);
 
 
 
-        int score_increase_from_hole_capture_modifier = levels.getJSONObject(currentLevel).getInt("score_increase_from_hole_capture_modifier");
-        int score_decrease_from_wrong_hole_modifier = levels.getJSONObject(currentLevel).getInt("score_decrease_from_wrong_hole_modifier");
-        ArrayList<String> ballList = new ArrayList<>();
+        scoreIncreaseModifier = levels.getJSONObject(currentLevel).getInt("score_increase_from_hole_capture_modifier");
+        scoreDecreaseModifier = levels.getJSONObject(currentLevel).getInt("score_decrease_from_wrong_hole_modifier");
 
-        int num_of_balls = levels.getJSONObject(currentLevel).getJSONArray("balls").size();
+        JSONObject scoreIncreaseConfig = config.getJSONObject("score_increase_from_hole_capture");
+        SCORE_INCREASE[0] = scoreIncreaseConfig.getInt("grey");
+        SCORE_INCREASE[1] = scoreIncreaseConfig.getInt("orange");
+        SCORE_INCREASE[2] = scoreIncreaseConfig.getInt("blue");
+        SCORE_INCREASE[3] = scoreIncreaseConfig.getInt("green");
+        SCORE_INCREASE[4] = scoreIncreaseConfig.getInt("yellow");
 
-        for(int i = 0; i < num_of_balls; i++){
-            ballList.add(levels.getJSONObject(currentLevel).getJSONArray("balls").getString(i));
+        JSONObject scoreDecreaseConfig = config.getJSONObject("score_decrease_from_wrong_hole");
+        SCORE_DECREASE[0] = scoreDecreaseConfig.getInt("grey");
+        SCORE_DECREASE[1] = scoreDecreaseConfig.getInt("orange");
+        SCORE_DECREASE[2] = scoreDecreaseConfig.getInt("blue");
+        SCORE_DECREASE[3] = scoreDecreaseConfig.getInt("green");
+        SCORE_DECREASE[4] = scoreDecreaseConfig.getInt("yellow");
+
+
+        ArrayList<String> ballQueueList = new ArrayList<>();
+        JSONArray balls = levels.getJSONObject(currentLevel).getJSONArray("balls");
+
+
+
+
+
+        for (int i = 0; i < balls.size(); i++) {
+            String ballColor = balls.getString(i);
+            switch (ballColor) {
+                case "grey":
+                    ballQueueList.add("grey");
+                    break;
+                case "orange":
+                    ballQueueList.add(("orange"));
+                    break;
+                case "blue":
+                    ballQueueList.add("blue");
+                    break;
+                case "green":
+                    ballQueueList.add("green");
+                    break;
+                case "yellow":
+                    ballQueueList.add("yellow");
+                    break;
+            }
         }
 
+        ballQueue = new BallQueue(ballQueueList, this);
+        spawnBall();
+
+
+
+
+    }
+
+    public void increaseScore(int holeColour){
+        score += (int) (SCORE_INCREASE[holeColour] * scoreIncreaseModifier);
+
+    }
+
+    public void decreaseScore(int holeColour){
+        score -= (int) (SCORE_DECREASE[holeColour] * scoreDecreaseModifier);
+
+    }
+
+    public void requeueBall(Ball ball){
+        String ballColour = getBallColourString(ball.getColour());
+        ballQueue.enqueue(ballColour);
+    }
+
+    private String getBallColourString(int color) {
+        switch (color) {
+            case 0:
+                return "grey";
+            case 1:
+                return "orange";
+            case 2:
+                return "blue";
+            case 3:
+                return "green";
+            case 4:
+                return "yellow";
+            default:
+                return null;
+        }
     }
 
     public void updateLevel(){
@@ -168,11 +276,13 @@ public class App extends PApplet {
 	@Override
     public void keyPressed(KeyEvent event){
         if(event.getKey() == ' '){
-            System.out.println("Space pressed");
+            paused = !paused;
+            timer.setPaused(paused);
         }
 
         else if(event.getKey() == 'r'){
             loadLevelData();
+            countdown = spawnInterval * App.FPS;
             System.out.println("R pressed");
         }
         
@@ -253,6 +363,38 @@ public class App extends PApplet {
 
         board.display(this);
 
+        if(!paused){
+            fill(205, 204, 205);
+            noStroke();
+            rect(250, 20, 170, 30);
+            countdown--;
+            if(countdown <= 0){
+                spawnBall();
+                countdown = spawnInterval * App.FPS;
+            }
+            displayCountdown();
+
+            Iterator<Ball> ballIterator = board.getBalls().iterator();
+            while (ballIterator.hasNext()) {
+                Ball ball = ballIterator.next();
+                ball.update();
+                ball.display(this);
+                if(ball.shouldBeRemoved()){
+                    ballIterator.remove();
+                }
+            }
+
+
+        }else {
+            displayPausedMessage();
+            for(Ball ball : board.getBalls()){
+                ball.display(this);
+            }
+        }
+
+        ballQueue.displayNextBalls();
+
+
 
 
 
@@ -271,20 +413,15 @@ public class App extends PApplet {
                 }
             }
         }
-        Iterator<Ball> ballIterator = board.getBalls().iterator();
-        while (ballIterator.hasNext()) {
-            Ball ball = ballIterator.next();
-            ball.update();
-            ball.display(this);
-            if(ball.shouldBeRemoved()){
-                ballIterator.remove();
-            }
-        }
 
 
 
-        //score.display();
-        //timer.display();
+
+        ScoreBoard scoreBoard = new ScoreBoard(score, this);
+        scoreBoard.update(score);
+        scoreBoard.display();
+        timer.update();
+        timer.display();
         //game_over.display();
 
         //updateable interface -> score, balls, ball tracker, time
@@ -304,6 +441,64 @@ public class App extends PApplet {
 		//----------------------------------
         //----------------------------------
 		//display game end message
+
+    }
+
+    private void displayPausedMessage() {
+        fill(205, 204, 205);
+        noStroke();
+        rect(250, 20, 170, 30);
+        textSize(21);
+        fill(0);
+        text("*** PAUSED ***", 255, 40);
+    }
+
+    protected void spawnBall(){
+        int ballColourNum;
+        if(!ballQueue.isEmpty()){
+            String ballColour = ballQueue.dequeue();
+            if(ballColour.equals("grey")){
+                ballColourNum = 0;
+            } else if(ballColour.equals("orange")){
+                ballColourNum = 1;
+            } else if(ballColour.equals("blue")){
+                ballColourNum = 2;
+            } else if(ballColour.equals("green")){
+                ballColourNum = 3;
+            } else {
+                ballColourNum = 4;
+            }
+
+
+            if(!board.getSpawners().isEmpty()) {
+
+                Random random = new Random();
+                int randomSpawner = random.nextInt(board.getSpawners().size());
+
+
+                board.addBall(new Ball((int) board.getSpawners().get(randomSpawner).getX()/App.CELLSIZE, ((int) board.getSpawners().get(randomSpawner).getY() - App.TOPBAR)/App.CELLSIZE, ballColourNum, board, this));
+            }
+        }
+    }
+
+    private void displayCountdown(){
+        if(!ballQueue.isEmpty()){
+            fill(205, 204, 205);
+            noStroke();
+            rect(180, 20, 60, 25);
+            textSize(21);
+            fill(0);
+            float roundedCountdown = Math.round(countdown/FPS * 10) / 10.0f;
+            String formattedCountdown = String.format("%.1f", roundedCountdown);
+            text((formattedCountdown), 190, 42);
+
+        }else{
+            fill(205, 204, 205);
+            noStroke();
+            rect(180, 20, 60, 25);
+            fill(0);
+            countdown = spawnInterval * FPS;
+        }
 
     }
 

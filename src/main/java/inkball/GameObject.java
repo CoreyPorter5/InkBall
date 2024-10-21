@@ -29,5 +29,9 @@ public abstract class GameObject {
         return image;
     }
 
+    public void setImage(PImage image){
+        this.image = image;
+    }
+
     public abstract void display(PApplet app);
 }

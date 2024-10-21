@@ -13,6 +13,7 @@ public class Ball extends GameObject implements Updatable {
     protected float radius = Board.BALLRADIUS;
     private final float originalRadius = Board.BALLRADIUS;
     private float originalXVelocity, originalYVelocity;
+    private int colour;
 
 
     public Ball(int x, int y, int colour, Board board, App app) {
@@ -22,6 +23,7 @@ public class Ball extends GameObject implements Updatable {
         this.app = app;
         this.originalXVelocity = x_velocity;
         this.originalYVelocity = y_velocity;
+        this.colour = colour;
 
 
 
@@ -47,7 +49,15 @@ public class Ball extends GameObject implements Updatable {
             PVector ballPos = new PVector(x, y);
             float distance = PVector.dist(ballPos, holeCentre);
             if (distance < 5.5) {
+                if(hole.getColor() == this.colour || this.colour == 0 || hole.getColor() == 0){
+                    app.increaseScore(hole.getColor());
+                }else{
+                    app.decreaseScore(hole.getColor());
+                    app.requeueBall(this);
+                }
                 return true;
+
+
             }
         }
         return false;
@@ -79,6 +89,16 @@ public class Ball extends GameObject implements Updatable {
     public void resetVelocity() {
         this.x_velocity = this.originalXVelocity;
         this.y_velocity = this.originalYVelocity;
+    }
+
+    public void changeColour(int newColour){
+        if(newColour == 0){
+            return;
+        }
+        this.colour = newColour;
+        this.setImage(board.getBallImage(newColour));
+
+
     }
 
 
@@ -116,6 +136,10 @@ public class Ball extends GameObject implements Updatable {
 
 
 
+    }
+
+    public int getColour(){
+        return colour;
     }
 
 
