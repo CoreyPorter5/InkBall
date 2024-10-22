@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="inkball.SampleTest" tests="9" skipped="0" failures="2" errors="0" timestamp="2024-10-17T09:57:00" hostname="linux-mint" time="1.246">
+<testsuite name="inkball.SampleTest" tests="9" skipped="0" failures="2" errors="0" timestamp="2024-10-22T12:54:18" hostname="linux-mint" time="1.274">
   <properties/>
-  <testcase name="testCollisonHandlerBallWallCollision()" classname="inkball.SampleTest" time="0.034">
+  <testcase name="testCollisonHandlerBallWallCollision()" classname="inkball.SampleTest" time="0.035">
     <failure message="org.opentest4j.AssertionFailedError: Ball Y velocity did not update correctly ==&gt; expected: &lt;-2.0&gt; but was: &lt;2.0&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: Ball Y velocity did not update correctly ==&gt; expected: &lt;-2.0&gt; but was: &lt;2.0&gt;
 	at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:55)
 	at org.junit.jupiter.api.AssertionUtils.failNotEqual(AssertionUtils.java:62)
@@ -95,14 +95,14 @@
 </failure>
   </testcase>
   <testcase name="testBallUpdatePosition()" classname="inkball.SampleTest" time="0.001"/>
-  <testcase name="simpleTest()" classname="inkball.SampleTest" time="1.198"/>
+  <testcase name="simpleTest()" classname="inkball.SampleTest" time="1.22"/>
   <testcase name="testMouseReleasedRight()" classname="inkball.SampleTest" time="0.002"/>
   <testcase name="testChooseCloserNormal()" classname="inkball.SampleTest" time="0.001"/>
-  <testcase name="testMouseReleasedLeftwithCTRL()" classname="inkball.SampleTest" time="0.0"/>
+  <testcase name="testMouseReleasedLeftwithCTRL()" classname="inkball.SampleTest" time="0.001"/>
   <testcase name="testBallandWallCollision()" classname="inkball.SampleTest" time="0.002"/>
-  <testcase name="testLineDrawing()" classname="inkball.SampleTest" time="0.001">
+  <testcase name="testLineDrawing()" classname="inkball.SampleTest" time="0.002">
     <failure message="java.lang.NullPointerException" type="java.lang.NullPointerException">java.lang.NullPointerException
-	at inkball.App.draw(App.java:253)
+	at inkball.App.draw(App.java:344)
 	at inkball.SampleTest.testLineDrawing(SampleTest.java:226)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -190,7 +190,15 @@
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
 </failure>
   </testcase>
-  <testcase name="testCollisionHandlerBallPlayerLine()" classname="inkball.SampleTest" time="0.001"/>
+  <testcase name="testCollisionHandlerBallPlayerLine()" classname="inkball.SampleTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
+  <system-err><![CDATA[java.lang.IndexOutOfBoundsException: Index: 3, Size: 3
+	at java.util.ArrayList.rangeCheck(ArrayList.java:659)
+	at java.util.ArrayList.get(ArrayList.java:435)
+	at inkball.BallQueue.displayNextBalls(BallQueue.java:64)
+	at inkball.App.draw(App.java:382)
+	at processing.core.PApplet.handleDraw(PApplet.java:2426)
+	at processing.awt.PSurfaceAWT$12.callDraw(PSurfaceAWT.java:1557)
+	at processing.core.PSurfaceNone$AnimationThread.run(PSurfaceNone.java:316)
+]]></system-err>
 </testsuite>

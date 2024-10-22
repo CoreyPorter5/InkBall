@@ -18,7 +18,7 @@ public class Timer {
     }
 
     public void update(){
-        if(!paused){
+        if(!paused && !app.levelWin){
             int currentTime = app.millis();
             if (currentTime - lastUpdateTime > 1000) {
                 time--;
@@ -45,6 +45,14 @@ public class Timer {
 
 
 
+    }
+
+    public int getTime(){
+        return this.time;
+    }
+
+    public void setTime(int time){
+        this.time = time;
     }
 
     public void setPaused(boolean paused){

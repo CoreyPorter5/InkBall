@@ -7,12 +7,6 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
-import java.io.*;
 import java.util.*;
 
 public class App extends PApplet {
@@ -28,6 +22,7 @@ public class App extends PApplet {
     public static final int BOARD_HEIGHT = 20;
 
     private boolean paused = false;
+    protected boolean levelWin = false;
 
     public static final int INITIAL_PARACHUTES = 1;
 
@@ -37,11 +32,11 @@ public class App extends PApplet {
     private int currentLevel;
     private JSONArray levels;
     private Board board;
-    private int score;
-    private Timer timer;
-    private ScoreBoard scoreBoard;
+    public int score;
+    private int levelStartScore;
+    protected Timer timer;
     private BallQueue ballQueue;
-    private ScoreBoard scoreboard;
+    private ScoreBoard scoreBoard;
     private int spawnInterval;
     private float countdown;
     private char lastKey;
@@ -53,6 +48,7 @@ public class App extends PApplet {
     private static final int[] SCORE_DECREASE = new int[5];
 
     public List<PlayerLine> playerLines;
+    private List<YellowTile> yellowTiles;
     private PlayerLine currentLine;
 
     private HashMap<String, PImage> sprites = new HashMap<>();
@@ -82,6 +78,7 @@ public class App extends PApplet {
         frameRate(FPS);
 
         playerLines = new ArrayList<>();
+        yellowTiles = new ArrayList<>();
 
 
 
@@ -114,38 +111,10 @@ public class App extends PApplet {
             }
         }
 
-
+        scoreBoard = new ScoreBoard(this);
         loadLevelData();
         countdown = spawnInterval * App.FPS;
 
-
-
-
-
-
-
-
-
-
-
-		//See PApplet javadoc:
-
-
-
-
-
-
-
-
-
-
-
-		// the image is loaded from relative path: "src/main/resources/inkball/..."
-		/*try {
-            result = loadImage(URLDecoder.decode(this.getClass().getResource(filename+".png").getPath(), StandardCharsets.UTF_8.name()));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }*/
     }
 
     public PImage getBallImage(String ballColor){
@@ -199,9 +168,6 @@ public class App extends PApplet {
         JSONArray balls = levels.getJSONObject(currentLevel).getJSONArray("balls");
 
 
-
-
-
         for (int i = 0; i < balls.size(); i++) {
             String ballColor = balls.getString(i);
             switch (ballColor) {
@@ -226,7 +192,7 @@ public class App extends PApplet {
         ballQueue = new BallQueue(ballQueueList, this);
         spawnBall();
 
-
+        levelStartScore = score;
 
 
     }
@@ -265,8 +231,12 @@ public class App extends PApplet {
 
     public void updateLevel(){
         if(currentLevel < levels.size() - 1) {
+            levelWin = false;
             currentLevel++;
             loadLevelData();
+            countdown = spawnInterval * App.FPS;
+            playerLines.clear();
+            yellowTiles.clear();
         }
     }
 
@@ -281,16 +251,32 @@ public class App extends PApplet {
         }
 
         else if(event.getKey() == 'r'){
-            loadLevelData();
-            countdown = spawnInterval * App.FPS;
-            System.out.println("R pressed");
+            if(currentLevel < levels.size() - 1) {
+                restartLevel();
+            }else{
+                restartGame();
+            }
         }
         
     }
 
-    /**
-     * Receive key released signal from the keyboard.
-     */
+    private void restartLevel(){
+        levelWin = false;
+        score = levelStartScore;
+        loadLevelData();
+        countdown = spawnInterval * App.FPS;
+        playerLines.clear();
+        yellowTiles.clear();
+    }
+
+    private void restartGame(){
+        currentLevel = 0;
+        score = 0;
+        restartLevel();
+    }
+
+
+
 	@Override
     public void keyReleased(){
 
@@ -316,10 +302,6 @@ public class App extends PApplet {
             currentLine.addPoint(e.getX(), e.getY());
         }
 
-        // add line segments to player-drawn line object if left mouse button is held
-		
-		// remove player-drawn line object if right mouse button is held 
-		// and mouse position collides with the line
     }
 
     @Override
@@ -355,15 +337,13 @@ public class App extends PApplet {
         }
     }
 
-    /**
-     * Draw all elements in the game by current frame.
-     */
+
 	@Override
     public void draw() {
 
         board.display(this);
 
-        if(!paused){
+        if(!paused && timer.getTime() > 0) {
             fill(205, 204, 205);
             noStroke();
             rect(250, 20, 170, 30);
@@ -385,7 +365,14 @@ public class App extends PApplet {
             }
 
 
-        }else {
+        }else if(timer.getTime() <= 0){
+            displayTimesUp();
+            for(Ball ball : board.getBalls()){
+                ball.display(this);
+            }
+        }
+
+        else {
             displayPausedMessage();
             for(Ball ball : board.getBalls()){
                 ball.display(this);
@@ -393,64 +380,77 @@ public class App extends PApplet {
         }
 
         ballQueue.displayNextBalls();
+        scoreBoard.display();
+        timer.update();
+        timer.display();
+
+        if(board.getBalls().isEmpty() && ballQueue.isEmpty() && !levelWin){
+            levelWin = true;
+            scoreBoard.addTimeToScore(timer.getTime());
+            initaliseYellowTiles();
 
 
+        }else if(timer.getTime() <=0 && !levelWin){
+            displayTimesUp();
 
+        }
 
+        if(levelWin){
+            scoreBoard.updateScoreWithTime();
+            updateAndDisplayYellowTiles();
 
+        }
 
-
-
-        stroke(0);
-        strokeWeight(10);
-        for (PlayerLine line : playerLines) {
-            List<PVector> points = line.getPoints();
-            for (int i = 0; i < points.size() - 1; i++) {
-                PVector p1 = points.get(i);
-                PVector p2 = points.get(i + 1);
-                if(p1.y > TOPBAR + 4 && p2.y > TOPBAR + 4){
-                    line(p1.x, p1.y, p2.x, p2.y);
-                }
+        if(currentLevel == levels.size() - 1 && levelWin && timer.getTime() <= 0){
+            if(!yellowTiles.isEmpty()){
+                yellowTiles.clear();
             }
+            fill(205, 204, 205);
+            noStroke();
+            rect(250, 20, 177, 30);
+            textSize(21);
+            fill(0);
+            text("===ENDED===", 255, 40);
+
         }
 
 
 
 
-        ScoreBoard scoreBoard = new ScoreBoard(score, this);
-        scoreBoard.update(score);
-        scoreBoard.display();
-        timer.update();
-        timer.display();
-        //game_over.display();
+        if(timer.getTime() > 0 && !levelWin) {
+            stroke(0);
+            strokeWeight(10);
+            for (PlayerLine line : playerLines) {
+                List<PVector> points = line.getPoints();
+                for (int i = 0; i < points.size() - 1; i++) {
+                    PVector p1 = points.get(i);
+                    PVector p2 = points.get(i + 1);
+                    if (p1.y > TOPBAR + 4 && p2.y > TOPBAR + 4) {
+                        line(p1.x, p1.y, p2.x, p2.y);
+                    }
+                }
+            }
+        }
 
-        //updateable interface -> score, balls, ball tracker, time
-
-        
-
-        //----------------------------------
-        //display Board for current level: //Includes GUI
-        //----------------------------------
-        //TODO
-
-        //----------------------------------
-        //display score
-        //----------------------------------
-        //TODO
-        
-		//----------------------------------
-        //----------------------------------
-		//display game end message
 
     }
 
     private void displayPausedMessage() {
         fill(205, 204, 205);
         noStroke();
-        rect(250, 20, 170, 30);
+        rect(250, 20, 177, 30);
         textSize(21);
         fill(0);
         text("*** PAUSED ***", 255, 40);
+    }
+
+    private void displayTimesUp(){
+        fill(205, 204, 205);
+        noStroke();
+        rect(250, 20, 177, 30);
+        textSize(21);
+        fill(0);
+        text("===TIME'S UP===", 255, 40);
     }
 
     protected void spawnBall(){
@@ -500,7 +500,25 @@ public class App extends PApplet {
             countdown = spawnInterval * FPS;
         }
 
+
     }
+
+    private void initaliseYellowTiles(){
+        PImage yellowWall = sprites.get("wall4");
+        yellowTiles.add(new YellowTile(0, App.TOPBAR, yellowWall, this));
+        yellowTiles.add(new YellowTile(width - CELLSIZE, height - CELLSIZE, yellowWall, this));
+    }
+
+    private void updateAndDisplayYellowTiles(){
+        for(YellowTile yellowTile : yellowTiles) {
+            yellowTile.update();
+            yellowTile.display();
+        }
+        if(timer.getTime() <= 0) {
+            updateLevel();
+        }
+    }
+
 
 
     public static void main(String[] args) {

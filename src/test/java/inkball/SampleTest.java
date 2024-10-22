@@ -67,7 +67,7 @@ public class SampleTest{
 
         Board board = new Board("level2.txt", sprites, app);
 
-        Wall wall = new Wall(5, 5, null, board);
+        Wall wall = new Wall(5, 5, null, board, 1);
         board.getWalls().add(wall);
 
         Ball ball = new Ball(5, 4, 0, board, app);
@@ -108,7 +108,7 @@ public class SampleTest{
 
         Board board = new Board("level2.txt", sprites, app);
 
-        Wall wall = new Wall(5, 5, sprites.get("wall0"), board);
+        Wall wall = new Wall(5, 5, sprites.get("wall0"), board, 1);
         board.getWalls().add(wall);
 
         Ball ball = new Ball(5, 4, 0, board, app);

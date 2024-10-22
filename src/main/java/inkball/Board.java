@@ -23,6 +23,7 @@ public class Board {
     private ArrayList<Ball> ballsToRemove;
     private ArrayList<Spawner> spawners;
     private ArrayList<Wall> walls;
+    private List<Brick> bricks;
 
 
     private HashMap<String, PImage> sprites;
@@ -42,6 +43,8 @@ public class Board {
         this.sprites = sprites;
         this.app = app;
         this.collisionHandler = new CollisionHandler(app, this);
+        bricks = new ArrayList<>();
+        loadBricks(layoutPath, sprites);
         loadLayout(this.layoutPath);
     }
 
@@ -202,6 +205,20 @@ public class Board {
     public void testForCollisions(Ball ball) {
         collisionHandler.testForCollisions(ball);
     }
+
+    private void loadBricks(String layout, HashMap<String, PImage> sprites){
+        // Load the bricks from the layout string and populate the bricks array
+    }
+
+    public List<Brick> getBricks(){
+        return bricks;
+    }
+
+    public void removeBrick(Brick brick){
+        bricks.remove(brick);
+    }
+
+
 
 
 

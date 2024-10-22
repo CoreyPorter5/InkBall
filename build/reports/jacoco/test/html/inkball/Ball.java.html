@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ball.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">InkBall_Assignment_INFO1113</a> &gt; <a href="index.source.html" class="el_package">inkball</a> &gt; <span class="el_source">Ball.java</span></div><h1>Ball.java</h1><pre class="source lang-java linenums">package inkball;
 
 import processing.core.PApplet;
+import processing.core.PVector;
 
 
 public class Ball extends GameObject implements Updatable {
@@ -8,38 +9,98 @@ public class Ball extends GameObject implements Updatable {
     private float x_velocity, y_velocity;
     private App app;
     private CollisionHandler collision;
+<span class="fc" id="L12">    private float scaleFactor = 1.0f;</span>
+<span class="fc" id="L13">    protected float radius = Board.BALLRADIUS;</span>
+<span class="fc" id="L14">    private final float originalRadius = Board.BALLRADIUS;</span>
+    private float originalXVelocity, originalYVelocity;
+    private int colour;
 
 
     public Ball(int x, int y, int colour, Board board, App app) {
-<span class="fc" id="L14">        super(x * App.CELLSIZE + Board.BALLRADIUS, y * App.CELLSIZE + App.TOPBAR + Board.BALLRADIUS, board.getBallImage(colour), board);</span>
-<span class="fc bfc" id="L15" title="All 2 branches covered.">        this.x_velocity = (App.random.nextBoolean() ? 2 : -2);</span>
-<span class="fc bfc" id="L16" title="All 2 branches covered.">        this.y_velocity = (App.random.nextBoolean() ? 2 : -2);</span>
-<span class="fc" id="L17">        this.app = app;</span>
+<span class="fc" id="L20">        super(x * App.CELLSIZE + Board.BALLRADIUS, y * App.CELLSIZE + App.TOPBAR + Board.BALLRADIUS, board.getBallImage(colour), board);</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        this.x_velocity = (App.random.nextBoolean() ? 2 : -2);</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        this.y_velocity = (App.random.nextBoolean() ? 2 : -2);</span>
+<span class="fc" id="L23">        this.app = app;</span>
+<span class="fc" id="L24">        this.originalXVelocity = x_velocity;</span>
+<span class="fc" id="L25">        this.originalYVelocity = y_velocity;</span>
+<span class="fc" id="L26">        this.colour = colour;</span>
 
 
 
 
-<span class="fc" id="L22">    }</span>
+<span class="fc" id="L31">    }</span>
+
 
 
 
 
 
     public double getX_velocity(){
-<span class="fc" id="L29">        return this.x_velocity;</span>
+<span class="fc" id="L39">        return this.x_velocity;</span>
     }
 
     public double getY_velocity(){
-<span class="fc" id="L33">        return this.y_velocity;</span>
+<span class="fc" id="L43">        return this.y_velocity;</span>
     }
 
+    public boolean shouldBeRemoved() {
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        for (Hole hole : board.getHoles()) {</span>
+<span class="fc" id="L48">            PVector holeCentre = new PVector(hole.getCentreX(), hole.getCentreY());</span>
+<span class="fc" id="L49">            PVector ballPos = new PVector(x, y);</span>
+<span class="fc" id="L50">            float distance = PVector.dist(ballPos, holeCentre);</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">            if (distance &lt; 5.5) {</span>
+<span class="nc bnc" id="L52" title="All 6 branches missed.">                if(hole.getColor() == this.colour || this.colour == 0 || hole.getColor() == 0){</span>
+<span class="nc" id="L53">                    app.increaseScore(hole.getColor());</span>
+                }else{
+<span class="nc" id="L55">                    app.decreaseScore(hole.getColor());</span>
+<span class="nc" id="L56">                    app.requeueBall(this);</span>
+                }
+<span class="nc" id="L58">                return true;</span>
+
+
+            }
+<span class="fc" id="L62">        }</span>
+<span class="fc" id="L63">        return false;</span>
+    }
+
+
+
     public void setX_velocity(float x_velocity){
-<span class="fc" id="L37">        this.x_velocity = x_velocity;</span>
-<span class="fc" id="L38">    }</span>
+<span class="fc" id="L69">        this.x_velocity = x_velocity;</span>
+<span class="fc" id="L70">    }</span>
 
     public void setY_velocity(float y_velocity){
-<span class="fc" id="L41">        this.y_velocity = y_velocity;</span>
-<span class="fc" id="L42">    }</span>
+<span class="fc" id="L73">        this.y_velocity = y_velocity;</span>
+<span class="fc" id="L74">    }</span>
+
+    public void updateRadius(float factor){
+<span class="nc" id="L77">        this.radius *= factor;</span>
+<span class="nc" id="L78">    }</span>
+
+    public void resetRadius(){
+<span class="nc" id="L81">        this.radius = originalRadius;</span>
+<span class="nc" id="L82">    }</span>
+
+    public void applyAttractionForce(PVector force){
+<span class="nc" id="L85">        this.x_velocity += force.x;</span>
+<span class="nc" id="L86">        this.y_velocity += force.y;</span>
+<span class="nc" id="L87">    }</span>
+
+    public void resetVelocity() {
+<span class="nc" id="L90">        this.x_velocity = this.originalXVelocity;</span>
+<span class="nc" id="L91">        this.y_velocity = this.originalYVelocity;</span>
+<span class="nc" id="L92">    }</span>
+
+    public void changeColour(int newColour){
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if(newColour == 0){</span>
+<span class="nc" id="L96">            return;</span>
+        }
+<span class="fc" id="L98">        this.colour = newColour;</span>
+<span class="fc" id="L99">        this.setImage(board.getBallImage(newColour));</span>
+
+
+<span class="fc" id="L102">    }</span>
+
 
 
 
@@ -50,19 +111,24 @@ public class Ball extends GameObject implements Updatable {
 
     @Override
     public void update(){
-<span class="fc" id="L53">        board.testForCollisions(this);</span>
+<span class="fc" id="L114">        board.testForCollisions(this);</span>
 
-<span class="fc" id="L55">        x +=  x_velocity;</span>
-<span class="fc" id="L56">        y +=  y_velocity;</span>
+
+
+
+
+
+<span class="fc" id="L121">        x +=  x_velocity;</span>
+<span class="fc" id="L122">        y +=  y_velocity;</span>
 
 
         //Handles collisions with boarder
 
-<span class="pc bpc" id="L61" title="1 of 4 branches missed.">        if (x - Board.BALLRADIUS &lt; 0 || x + Board.BALLRADIUS &gt; App.WIDTH) {</span>
-<span class="fc" id="L62">            x_velocity *= -1;</span>
+<span class="pc bpc" id="L127" title="1 of 4 branches missed.">        if (x - radius &lt; 0 || x + radius &gt; App.WIDTH) {</span>
+<span class="fc" id="L128">            x_velocity *= -1;</span>
         }
-<span class="pc bpc" id="L64" title="1 of 4 branches missed.">        if (y - Board.BALLRADIUS &lt; App.TOPBAR || y + Board.BALLRADIUS &gt; App.HEIGHT) {</span>
-<span class="fc" id="L65">            y_velocity *= -1;</span>
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (y - radius &lt; App.TOPBAR || y + radius &gt; App.HEIGHT) {</span>
+<span class="fc" id="L131">            y_velocity *= -1;</span>
         }
 
 
@@ -70,15 +136,19 @@ public class Ball extends GameObject implements Updatable {
 
 
 
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L139">    }</span>
+
+    public int getColour(){
+<span class="nc" id="L142">        return colour;</span>
+    }
 
 
     @Override
     public void display(PApplet app) {
-<span class="fc" id="L78">        app.image(getImage(), (float)(x - Board.BALLRADIUS), (float)(y - Board.BALLRADIUS), Board.BALLRADIUS * 2, Board.BALLRADIUS * 2);</span>
+<span class="fc" id="L148">        app.image(getImage(), (float)(x - radius), (float)(y - radius), radius * 2, radius * 2);</span>
 
 
-<span class="fc" id="L81">    }</span>
+<span class="fc" id="L151">    }</span>
 
 
 

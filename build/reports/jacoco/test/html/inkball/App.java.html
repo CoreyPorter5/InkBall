@@ -7,12 +7,6 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
-import java.io.*;
 import java.util.*;
 
 public class App extends PApplet {
@@ -22,10 +16,13 @@ public class App extends PApplet {
 
     public static final int CELLAVG = 32;
     public static final int TOPBAR = 64;
-<span class="fc" id="L25">    public static int WIDTH = 576; //CELLSIZE*BOARD_WIDTH;</span>
-<span class="fc" id="L26">    public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;</span>
-<span class="fc" id="L27">    public static final int BOARD_WIDTH = WIDTH/CELLSIZE;</span>
+<span class="fc" id="L19">    public static int WIDTH = 576; //CELLSIZE*BOARD_WIDTH;</span>
+<span class="fc" id="L20">    public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;</span>
+<span class="fc" id="L21">    public static final int BOARD_WIDTH = WIDTH/CELLSIZE;</span>
     public static final int BOARD_HEIGHT = 20;
+
+<span class="fc" id="L24">    private boolean paused = false;</span>
+<span class="fc" id="L25">    protected boolean levelWin = false;</span>
 
     public static final int INITIAL_PARACHUTES = 1;
 
@@ -35,42 +32,57 @@ public class App extends PApplet {
     private int currentLevel;
     private JSONArray levels;
     private Board board;
-    //private Score score;
-    //private TimerClock timer;
+    public int score;
+    private int levelStartScore;
+    protected Timer timer;
+    private BallQueue ballQueue;
+    private ScoreBoard scoreBoard;
+    private int spawnInterval;
+    private float countdown;
+    private char lastKey;
+
+    private float scoreIncreaseModifier;
+    private float scoreDecreaseModifier;
+
+<span class="fc" id="L47">    private static final int[] SCORE_INCREASE = new int[5];</span>
+<span class="fc" id="L48">    private static final int[] SCORE_DECREASE = new int[5];</span>
 
     public List&lt;PlayerLine&gt; playerLines;
+    private List&lt;YellowTile&gt; yellowTiles;
     private PlayerLine currentLine;
 
-<span class="fc" id="L44">    private HashMap&lt;String, PImage&gt; sprites = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L54">    private HashMap&lt;String, PImage&gt; sprites = new HashMap&lt;&gt;();</span>
 
-<span class="fc" id="L46">    public static Random random = new Random();</span>
+<span class="fc" id="L56">    public static Random random = new Random();</span>
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
-<span class="fc" id="L50">    public App() {</span>
-<span class="fc" id="L51">        this.configPath = &quot;config.json&quot;;</span>
-<span class="fc" id="L52">        this.currentLevel = 0;</span>
-<span class="fc" id="L53">    }</span>
+<span class="fc" id="L60">    public App() {</span>
+<span class="fc" id="L61">        this.configPath = &quot;config.json&quot;;</span>
+<span class="fc" id="L62">        this.currentLevel = 0;</span>
+<span class="fc" id="L63">    }</span>
 
     /**
      * Initialise the setting of the window size.
      */
 	@Override
     public void settings() {
-<span class="fc" id="L60">        size(WIDTH, HEIGHT);</span>
-<span class="fc" id="L61">    }</span>
+<span class="fc" id="L70">        size(WIDTH, HEIGHT);</span>
+<span class="fc" id="L71">    }</span>
 
     /**
      * Load all resources such as images. Initialise the elements such as the player and map elements.
      */
 	@Override
     public void setup() {
-<span class="fc" id="L68">        frameRate(FPS);</span>
+<span class="fc" id="L78">        frameRate(FPS);</span>
 
-<span class="fc" id="L70">        playerLines = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L80">        playerLines = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L81">        yellowTiles = new ArrayList&lt;&gt;();</span>
 
 
-<span class="fc" id="L73">        String[] spriteNames = new String[]{</span>
+
+<span class="fc" id="L85">        String[] spriteNames = new String[]{</span>
                 &quot;ball0&quot;,
                 &quot;ball1&quot;,
                 &quot;ball2&quot;,
@@ -90,218 +102,428 @@ public class App extends PApplet {
                 &quot;wall4&quot;
         };
 
-<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (String sprite : spriteNames) {</span>
-<span class="fc" id="L94">            PImage img = loadImage(&quot;inkball/&quot; + sprite + &quot;.png&quot;);</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            if (img == null) {</span>
-<span class="nc" id="L96">                System.err.println(&quot;Error loading image: &quot; + sprite);</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (String sprite : spriteNames) {</span>
+<span class="fc" id="L106">            PImage img = loadImage(&quot;inkball/&quot; + sprite + &quot;.png&quot;);</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">            if (img == null) {</span>
+<span class="nc" id="L108">                System.err.println(&quot;Error loading image: &quot; + sprite);</span>
             } else {
-<span class="fc" id="L98">                sprites.put(sprite, img);</span>
+<span class="fc" id="L110">                sprites.put(sprite, img);</span>
             }
         }
 
+<span class="fc" id="L114">        scoreBoard = new ScoreBoard(this);</span>
+<span class="fc" id="L115">        loadLevelData();</span>
+<span class="fc" id="L116">        countdown = spawnInterval * App.FPS;</span>
 
-<span class="fc" id="L103">        loadLevelData();</span>
+<span class="fc" id="L118">    }</span>
 
+    public PImage getBallImage(String ballColor){
+<span class="pc bpc" id="L121" title="2 of 6 branches missed.">        switch (ballColor) {</span>
+            case &quot;grey&quot;:
+<span class="fc" id="L123">                return sprites.get(&quot;ball0&quot;);</span>
+            case &quot;orange&quot;:
+<span class="nc" id="L125">                return sprites.get(&quot;ball1&quot;);</span>
+            case &quot;blue&quot;:
+<span class="fc" id="L127">                return sprites.get(&quot;ball2&quot;);</span>
+            case &quot;green&quot;:
+<span class="fc" id="L129">                return sprites.get(&quot;ball3&quot;);</span>
+            case &quot;yellow&quot;:
+<span class="fc" id="L131">                return sprites.get(&quot;ball4&quot;);</span>
+            default:
+<span class="nc" id="L133">                return null;</span>
+        }
+    }
 
-
-
-
-
-
-
-
-
-
-		//See PApplet javadoc:
-
-
-
-
-
-
-
-
-
-
-
-		// the image is loaded from relative path: &quot;src/main/resources/inkball/...&quot;
-		/*try {
-            result = loadImage(URLDecoder.decode(this.getClass().getResource(filename+&quot;.png&quot;).getPath(), StandardCharsets.UTF_8.name()));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }*/
-<span class="fc" id="L133">    }</span>
 
     private void loadLevelData(){
-<span class="fc" id="L136">        JSONObject config = loadJSONObject(configPath);</span>
-<span class="fc" id="L137">        levels = config.getJSONArray(&quot;levels&quot;);</span>
-<span class="fc" id="L138">        board = new Board(levels.getJSONObject(currentLevel).getString(&quot;layout&quot;), this.sprites, this);</span>
+<span class="fc" id="L139">        JSONObject config = loadJSONObject(configPath);</span>
+<span class="fc" id="L140">        levels = config.getJSONArray(&quot;levels&quot;);</span>
+<span class="fc" id="L141">        board = new Board(levels.getJSONObject(currentLevel).getString(&quot;layout&quot;), this.sprites, this);</span>
+<span class="fc" id="L142">        spawnInterval = levels.getJSONObject(currentLevel).getInt(&quot;spawn_interval&quot;);</span>
 
 
-        //score = new Score();
-        //timer = new TimerClock(levels.getJSONObject(currentLevel).getInt(&quot;time&quot;));
+<span class="fc" id="L145">        timer = new Timer(levels.getJSONObject(currentLevel).getInt(&quot;time&quot;), this);</span>
 
 
 
-<span class="fc" id="L146">        int score_increase_from_hole_capture_modifier = levels.getJSONObject(currentLevel).getInt(&quot;score_increase_from_hole_capture_modifier&quot;);</span>
-<span class="fc" id="L147">        int score_decrease_from_wrong_hole_modifier = levels.getJSONObject(currentLevel).getInt(&quot;score_decrease_from_wrong_hole_modifier&quot;);</span>
-<span class="fc" id="L148">        ArrayList&lt;String&gt; ballList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L149">        scoreIncreaseModifier = levels.getJSONObject(currentLevel).getInt(&quot;score_increase_from_hole_capture_modifier&quot;);</span>
+<span class="fc" id="L150">        scoreDecreaseModifier = levels.getJSONObject(currentLevel).getInt(&quot;score_decrease_from_wrong_hole_modifier&quot;);</span>
 
-<span class="fc" id="L150">        int num_of_balls = levels.getJSONObject(currentLevel).getJSONArray(&quot;balls&quot;).size();</span>
+<span class="fc" id="L152">        JSONObject scoreIncreaseConfig = config.getJSONObject(&quot;score_increase_from_hole_capture&quot;);</span>
+<span class="fc" id="L153">        SCORE_INCREASE[0] = scoreIncreaseConfig.getInt(&quot;grey&quot;);</span>
+<span class="fc" id="L154">        SCORE_INCREASE[1] = scoreIncreaseConfig.getInt(&quot;orange&quot;);</span>
+<span class="fc" id="L155">        SCORE_INCREASE[2] = scoreIncreaseConfig.getInt(&quot;blue&quot;);</span>
+<span class="fc" id="L156">        SCORE_INCREASE[3] = scoreIncreaseConfig.getInt(&quot;green&quot;);</span>
+<span class="fc" id="L157">        SCORE_INCREASE[4] = scoreIncreaseConfig.getInt(&quot;yellow&quot;);</span>
 
-<span class="fc bfc" id="L152" title="All 2 branches covered.">        for(int i = 0; i &lt; num_of_balls; i++){</span>
-<span class="fc" id="L153">            ballList.add(levels.getJSONObject(currentLevel).getJSONArray(&quot;balls&quot;).getString(i));</span>
+<span class="fc" id="L159">        JSONObject scoreDecreaseConfig = config.getJSONObject(&quot;score_decrease_from_wrong_hole&quot;);</span>
+<span class="fc" id="L160">        SCORE_DECREASE[0] = scoreDecreaseConfig.getInt(&quot;grey&quot;);</span>
+<span class="fc" id="L161">        SCORE_DECREASE[1] = scoreDecreaseConfig.getInt(&quot;orange&quot;);</span>
+<span class="fc" id="L162">        SCORE_DECREASE[2] = scoreDecreaseConfig.getInt(&quot;blue&quot;);</span>
+<span class="fc" id="L163">        SCORE_DECREASE[3] = scoreDecreaseConfig.getInt(&quot;green&quot;);</span>
+<span class="fc" id="L164">        SCORE_DECREASE[4] = scoreDecreaseConfig.getInt(&quot;yellow&quot;);</span>
+
+
+<span class="fc" id="L167">        ArrayList&lt;String&gt; ballQueueList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L168">        JSONArray balls = levels.getJSONObject(currentLevel).getJSONArray(&quot;balls&quot;);</span>
+
+
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        for (int i = 0; i &lt; balls.size(); i++) {</span>
+<span class="fc" id="L172">            String ballColor = balls.getString(i);</span>
+<span class="pc bpc" id="L173" title="1 of 6 branches missed.">            switch (ballColor) {</span>
+                case &quot;grey&quot;:
+<span class="fc" id="L175">                    ballQueueList.add(&quot;grey&quot;);</span>
+<span class="fc" id="L176">                    break;</span>
+                case &quot;orange&quot;:
+<span class="fc" id="L178">                    ballQueueList.add((&quot;orange&quot;));</span>
+<span class="fc" id="L179">                    break;</span>
+                case &quot;blue&quot;:
+<span class="fc" id="L181">                    ballQueueList.add(&quot;blue&quot;);</span>
+<span class="fc" id="L182">                    break;</span>
+                case &quot;green&quot;:
+<span class="fc" id="L184">                    ballQueueList.add(&quot;green&quot;);</span>
+<span class="fc" id="L185">                    break;</span>
+                case &quot;yellow&quot;:
+<span class="fc" id="L187">                    ballQueueList.add(&quot;yellow&quot;);</span>
+                    break;
+            }
         }
 
-<span class="fc" id="L156">    }</span>
+<span class="fc" id="L192">        ballQueue = new BallQueue(ballQueueList, this);</span>
+<span class="fc" id="L193">        spawnBall();</span>
+
+<span class="fc" id="L195">        levelStartScore = score;</span>
+
+
+<span class="fc" id="L198">    }</span>
+
+    public void increaseScore(int holeColour){
+<span class="nc" id="L201">        score += (int) (SCORE_INCREASE[holeColour] * scoreIncreaseModifier);</span>
+
+<span class="nc" id="L203">    }</span>
+
+    public void decreaseScore(int holeColour){
+<span class="nc" id="L206">        score -= (int) (SCORE_DECREASE[holeColour] * scoreDecreaseModifier);</span>
+
+<span class="nc" id="L208">    }</span>
+
+    public void requeueBall(Ball ball){
+<span class="nc" id="L211">        String ballColour = getBallColourString(ball.getColour());</span>
+<span class="nc" id="L212">        ballQueue.enqueue(ballColour);</span>
+<span class="nc" id="L213">    }</span>
+
+    private String getBallColourString(int color) {
+<span class="nc bnc" id="L216" title="All 6 branches missed.">        switch (color) {</span>
+            case 0:
+<span class="nc" id="L218">                return &quot;grey&quot;;</span>
+            case 1:
+<span class="nc" id="L220">                return &quot;orange&quot;;</span>
+            case 2:
+<span class="nc" id="L222">                return &quot;blue&quot;;</span>
+            case 3:
+<span class="nc" id="L224">                return &quot;green&quot;;</span>
+            case 4:
+<span class="nc" id="L226">                return &quot;yellow&quot;;</span>
+            default:
+<span class="nc" id="L228">                return null;</span>
+        }
+    }
 
     public void updateLevel(){
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        if(currentLevel &lt; levels.size() - 1) {</span>
-<span class="nc" id="L160">            currentLevel++;</span>
-<span class="nc" id="L161">            loadLevelData();</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if(currentLevel &lt; levels.size() - 1) {</span>
+<span class="nc" id="L234">            levelWin = false;</span>
+<span class="nc" id="L235">            currentLevel++;</span>
+<span class="nc" id="L236">            loadLevelData();</span>
+<span class="nc" id="L237">            countdown = spawnInterval * App.FPS;</span>
+<span class="nc" id="L238">            playerLines.clear();</span>
+<span class="nc" id="L239">            yellowTiles.clear();</span>
         }
-<span class="nc" id="L163">    }</span>
+<span class="nc" id="L241">    }</span>
 
     /**
      * Receive key pressed signal from the keyboard.
      */
 	@Override
     public void keyPressed(KeyEvent event){
-<span class="nc bnc" id="L170" title="All 2 branches missed.">        if(event.getKey() == ' '){</span>
-<span class="nc" id="L171">            System.out.println(&quot;Space pressed&quot;);</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if(event.getKey() == ' '){</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            paused = !paused;</span>
+<span class="nc" id="L250">            timer.setPaused(paused);</span>
         }
 
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        else if(event.getKey() == 'r'){</span>
-<span class="nc" id="L175">            loadLevelData();</span>
-<span class="nc" id="L176">            System.out.println(&quot;R pressed&quot;);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        else if(event.getKey() == 'r'){</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            if(currentLevel &lt; levels.size() - 1) {</span>
+<span class="nc" id="L255">                restartLevel();</span>
+            }else{
+<span class="nc" id="L257">                restartGame();</span>
+            }
         }
         
-<span class="nc" id="L179">    }</span>
+<span class="nc" id="L261">    }</span>
 
-    /**
-     * Receive key released signal from the keyboard.
-     */
+    private void restartLevel(){
+<span class="nc" id="L264">        levelWin = false;</span>
+<span class="nc" id="L265">        score = levelStartScore;</span>
+<span class="nc" id="L266">        loadLevelData();</span>
+<span class="nc" id="L267">        countdown = spawnInterval * App.FPS;</span>
+<span class="nc" id="L268">        playerLines.clear();</span>
+<span class="nc" id="L269">        yellowTiles.clear();</span>
+<span class="nc" id="L270">    }</span>
+
+    private void restartGame(){
+<span class="nc" id="L273">        currentLevel = 0;</span>
+<span class="nc" id="L274">        score = 0;</span>
+<span class="nc" id="L275">        restartLevel();</span>
+<span class="nc" id="L276">    }</span>
+
+
+
 	@Override
     public void keyReleased(){
 
         
-<span class="nc" id="L188">    }</span>
+<span class="nc" id="L284">    }</span>
 
     @Override
     public void mousePressed(MouseEvent e) {
-<span class="nc bnc" id="L192" title="All 2 branches missed.">        if(e.getButton() == LEFT){</span>
-<span class="nc" id="L193">            currentLine = new PlayerLine();</span>
-<span class="nc" id="L194">            currentLine.addPoint(e.getX(), e.getY());</span>
-<span class="nc" id="L195">            playerLines.add(currentLine);</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">        if(e.getButton() == LEFT){</span>
+<span class="nc" id="L289">            currentLine = new PlayerLine();</span>
+<span class="nc" id="L290">            currentLine.addPoint(e.getX(), e.getY());</span>
+<span class="nc" id="L291">            playerLines.add(currentLine);</span>
 
 
         }
 
-<span class="nc" id="L200">    }</span>
+
+<span class="nc" id="L297">    }</span>
 	
 	@Override
     public void mouseDragged(MouseEvent e) {
-<span class="nc bnc" id="L204" title="All 4 branches missed.">        if(e.getButton() == LEFT &amp;&amp; currentLine != null){</span>
-<span class="nc" id="L205">            currentLine.addPoint(e.getX(), e.getY());</span>
+<span class="nc bnc" id="L301" title="All 4 branches missed.">        if(e.getButton() == LEFT &amp;&amp; currentLine != null){</span>
+<span class="nc" id="L302">            currentLine.addPoint(e.getX(), e.getY());</span>
         }
 
-        // add line segments to player-drawn line object if left mouse button is held
-		
-		// remove player-drawn line object if right mouse button is held 
-		// and mouse position collides with the line
-<span class="nc" id="L212">    }</span>
+<span class="nc" id="L305">    }</span>
 
     @Override
     public void mouseReleased(MouseEvent e) {
-<span class="pc bpc" id="L216" title="1 of 4 branches missed.">        if (e.getButton() == LEFT &amp;&amp; e.isControlDown()) {</span>
-<span class="fc bfc" id="L217" title="All 2 branches covered.">            for (int i = 0; i &lt; playerLines.size(); i++) {</span>
-<span class="fc" id="L218">                PlayerLine line = playerLines.get(i);</span>
-<span class="fc" id="L219">                List&lt;PVector&gt; points = line.getPoints();</span>
-<span class="pc bpc" id="L220" title="1 of 2 branches missed.">                for (int j = 0; j &lt; points.size() - 1; j++) {</span>
-<span class="fc" id="L221">                    PVector p1 = points.get(j);</span>
-<span class="fc" id="L222">                    PVector p2 = points.get(j + 1);</span>
-<span class="pc bpc" id="L223" title="1 of 2 branches missed.">                    if (line.mouseCollideWithLine(e.getX(), e.getY(), (int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y)) {</span>
-<span class="fc" id="L224">                        playerLines.remove(i);</span>
-<span class="fc" id="L225">                        break;</span>
+<span class="pc bpc" id="L309" title="1 of 4 branches missed.">        if (e.getButton() == LEFT &amp;&amp; e.isControlDown()) {</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">            for (int i = 0; i &lt; playerLines.size(); i++) {</span>
+<span class="fc" id="L311">                PlayerLine line = playerLines.get(i);</span>
+<span class="fc" id="L312">                List&lt;PVector&gt; points = line.getPoints();</span>
+<span class="pc bpc" id="L313" title="1 of 2 branches missed.">                for (int j = 0; j &lt; points.size() - 1; j++) {</span>
+<span class="fc" id="L314">                    PVector p1 = points.get(j);</span>
+<span class="fc" id="L315">                    PVector p2 = points.get(j + 1);</span>
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">                    if (line.mouseCollideWithLine(e.getX(), e.getY(), (int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y)) {</span>
+<span class="fc" id="L317">                        playerLines.remove(i);</span>
+<span class="fc" id="L318">                        break;</span>
                     }
                 }
             }
-<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        } else if (e.getButton() == LEFT) {</span>
-<span class="nc" id="L230">            currentLine = null;</span>
-<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        } else if (e.getButton() == RIGHT) {</span>
-<span class="fc bfc" id="L232" title="All 2 branches covered.">            for (int i = 0; i &lt; playerLines.size(); i++) {</span>
-<span class="fc" id="L233">                PlayerLine line = playerLines.get(i);</span>
-<span class="fc" id="L234">                List&lt;PVector&gt; points = line.getPoints();</span>
-<span class="pc bpc" id="L235" title="1 of 2 branches missed.">                for (int j = 0; j &lt; points.size() - 1; j++) {</span>
-<span class="fc" id="L236">                    PVector p1 = points.get(j);</span>
-<span class="fc" id="L237">                    PVector p2 = points.get(j + 1);</span>
-<span class="pc bpc" id="L238" title="1 of 2 branches missed.">                    if (line.mouseCollideWithLine(e.getX(), e.getY(), (int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y)) {</span>
-<span class="fc" id="L239">                        playerLines.remove(i);</span>
-<span class="fc" id="L240">                        break;</span>
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">        } else if (e.getButton() == LEFT) {</span>
+<span class="nc" id="L323">            currentLine = null;</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        } else if (e.getButton() == RIGHT) {</span>
+<span class="fc bfc" id="L325" title="All 2 branches covered.">            for (int i = 0; i &lt; playerLines.size(); i++) {</span>
+<span class="fc" id="L326">                PlayerLine line = playerLines.get(i);</span>
+<span class="fc" id="L327">                List&lt;PVector&gt; points = line.getPoints();</span>
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">                for (int j = 0; j &lt; points.size() - 1; j++) {</span>
+<span class="fc" id="L329">                    PVector p1 = points.get(j);</span>
+<span class="fc" id="L330">                    PVector p2 = points.get(j + 1);</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">                    if (line.mouseCollideWithLine(e.getX(), e.getY(), (int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y)) {</span>
+<span class="fc" id="L332">                        playerLines.remove(i);</span>
+<span class="fc" id="L333">                        break;</span>
                     }
                 }
             }
         }
-<span class="fc" id="L245">    }</span>
+<span class="fc" id="L338">    }</span>
 
-    /**
-     * Draw all elements in the game by current frame.
-     */
+
 	@Override
     public void draw() {
 
-<span class="fc" id="L253">        board.display(this);</span>
+<span class="fc" id="L344">        board.display(this);</span>
 
-
-
-
-<span class="fc" id="L258">        stroke(0);</span>
-<span class="fc" id="L259">        strokeWeight(10);</span>
-<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        for (PlayerLine line : playerLines) {</span>
-<span class="nc" id="L261">            List&lt;PVector&gt; points = line.getPoints();</span>
-<span class="nc bnc" id="L262" title="All 2 branches missed.">            for (int i = 0; i &lt; points.size() - 1; i++) {</span>
-<span class="nc" id="L263">                PVector p1 = points.get(i);</span>
-<span class="nc" id="L264">                PVector p2 = points.get(i + 1);</span>
-<span class="nc bnc" id="L265" title="All 4 branches missed.">                if(p1.y &gt; TOPBAR + 4 &amp;&amp; p2.y &gt; TOPBAR + 4){</span>
-<span class="nc" id="L266">                    line(p1.x, p1.y, p2.x, p2.y);</span>
-                }
+<span class="pc bpc" id="L346" title="2 of 4 branches missed.">        if(!paused &amp;&amp; timer.getTime() &gt; 0) {</span>
+<span class="fc" id="L347">            fill(205, 204, 205);</span>
+<span class="fc" id="L348">            noStroke();</span>
+<span class="fc" id="L349">            rect(250, 20, 170, 30);</span>
+<span class="fc" id="L350">            countdown--;</span>
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">            if(countdown &lt;= 0){</span>
+<span class="nc" id="L352">                spawnBall();</span>
+<span class="nc" id="L353">                countdown = spawnInterval * App.FPS;</span>
             }
-<span class="nc" id="L269">        }</span>
+<span class="fc" id="L355">            displayCountdown();</span>
 
-<span class="fc bfc" id="L271" title="All 2 branches covered.">        for(Ball ball : board.getBalls()){</span>
-<span class="fc" id="L272">            ball.update();</span>
-<span class="fc" id="L273">            ball.display(this);</span>
-<span class="fc" id="L274">        }</span>
+<span class="fc" id="L357">            Iterator&lt;Ball&gt; ballIterator = board.getBalls().iterator();</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">            while (ballIterator.hasNext()) {</span>
+<span class="fc" id="L359">                Ball ball = ballIterator.next();</span>
+<span class="fc" id="L360">                ball.update();</span>
+<span class="fc" id="L361">                ball.display(this);</span>
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">                if(ball.shouldBeRemoved()){</span>
+<span class="nc" id="L363">                    ballIterator.remove();</span>
+                }
+<span class="fc" id="L365">            }</span>
 
 
-        //score.display();
-        //timer.display();
-        //game_over.display();
+<span class="pc bnc" id="L368" title="All 2 branches missed.">        }else if(timer.getTime() &lt;= 0){</span>
+<span class="nc" id="L369">            displayTimesUp();</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">            for(Ball ball : board.getBalls()){</span>
+<span class="nc" id="L371">                ball.display(this);</span>
+<span class="nc" id="L372">            }</span>
+        }
 
-        //updateable interface -&gt; score, balls, ball tracker, time
+        else {
+<span class="nc" id="L376">            displayPausedMessage();</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">            for(Ball ball : board.getBalls()){</span>
+<span class="nc" id="L378">                ball.display(this);</span>
+<span class="nc" id="L379">            }</span>
+        }
 
-        
+<span class="nc" id="L382">        ballQueue.displayNextBalls();</span>
+<span class="nc" id="L383">        scoreBoard.display();</span>
+<span class="nc" id="L384">        timer.update();</span>
+<span class="nc" id="L385">        timer.display();</span>
 
-        //----------------------------------
-        //display Board for current level: //Includes GUI
-        //----------------------------------
-        //TODO
+<span class="nc bnc" id="L387" title="All 6 branches missed.">        if(board.getBalls().isEmpty() &amp;&amp; ballQueue.isEmpty() &amp;&amp; !levelWin){</span>
+<span class="nc" id="L388">            levelWin = true;</span>
+<span class="nc" id="L389">            scoreBoard.addTimeToScore(timer.getTime());</span>
+<span class="nc" id="L390">            initaliseYellowTiles();</span>
 
-        //----------------------------------
-        //display score
-        //----------------------------------
-        //TODO
-        
-		//----------------------------------
-        //----------------------------------
-		//display game end message
 
-<span class="fc" id="L299">    }</span>
+<span class="nc bnc" id="L393" title="All 4 branches missed.">        }else if(timer.getTime() &lt;=0 &amp;&amp; !levelWin){</span>
+<span class="nc" id="L394">            displayTimesUp();</span>
+
+        }
+
+<span class="nc bnc" id="L398" title="All 2 branches missed.">        if(levelWin){</span>
+<span class="nc" id="L399">            scoreBoard.updateScoreWithTime();</span>
+<span class="nc" id="L400">            updateAndDisplayYellowTiles();</span>
+
+        }
+
+<span class="nc bnc" id="L404" title="All 6 branches missed.">        if(currentLevel == levels.size() - 1 &amp;&amp; levelWin &amp;&amp; timer.getTime() &lt;= 0){</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">            if(!yellowTiles.isEmpty()){</span>
+<span class="nc" id="L406">                yellowTiles.clear();</span>
+            }
+<span class="nc" id="L408">            fill(205, 204, 205);</span>
+<span class="nc" id="L409">            noStroke();</span>
+<span class="nc" id="L410">            rect(250, 20, 177, 30);</span>
+<span class="nc" id="L411">            textSize(21);</span>
+<span class="nc" id="L412">            fill(0);</span>
+<span class="nc" id="L413">            text(&quot;===ENDED===&quot;, 255, 40);</span>
+
+        }
+
+
+
+
+<span class="nc bnc" id="L420" title="All 4 branches missed.">        if(timer.getTime() &gt; 0 &amp;&amp; !levelWin) {</span>
+<span class="nc" id="L421">            stroke(0);</span>
+<span class="nc" id="L422">            strokeWeight(10);</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">            for (PlayerLine line : playerLines) {</span>
+<span class="nc" id="L424">                List&lt;PVector&gt; points = line.getPoints();</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">                for (int i = 0; i &lt; points.size() - 1; i++) {</span>
+<span class="nc" id="L426">                    PVector p1 = points.get(i);</span>
+<span class="nc" id="L427">                    PVector p2 = points.get(i + 1);</span>
+<span class="nc bnc" id="L428" title="All 4 branches missed.">                    if (p1.y &gt; TOPBAR + 4 &amp;&amp; p2.y &gt; TOPBAR + 4) {</span>
+<span class="nc" id="L429">                        line(p1.x, p1.y, p2.x, p2.y);</span>
+                    }
+                }
+<span class="nc" id="L432">            }</span>
+        }
+
+
+<span class="nc" id="L436">    }</span>
+
+    private void displayPausedMessage() {
+<span class="nc" id="L439">        fill(205, 204, 205);</span>
+<span class="nc" id="L440">        noStroke();</span>
+<span class="nc" id="L441">        rect(250, 20, 177, 30);</span>
+<span class="nc" id="L442">        textSize(21);</span>
+<span class="nc" id="L443">        fill(0);</span>
+<span class="nc" id="L444">        text(&quot;*** PAUSED ***&quot;, 255, 40);</span>
+<span class="nc" id="L445">    }</span>
+
+    private void displayTimesUp(){
+<span class="nc" id="L448">        fill(205, 204, 205);</span>
+<span class="nc" id="L449">        noStroke();</span>
+<span class="nc" id="L450">        rect(250, 20, 177, 30);</span>
+<span class="nc" id="L451">        textSize(21);</span>
+<span class="nc" id="L452">        fill(0);</span>
+<span class="nc" id="L453">        text(&quot;===TIME'S UP===&quot;, 255, 40);</span>
+<span class="nc" id="L454">    }</span>
+
+    protected void spawnBall(){
+        int ballColourNum;
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">        if(!ballQueue.isEmpty()){</span>
+<span class="fc" id="L459">            String ballColour = ballQueue.dequeue();</span>
+<span class="pc bpc" id="L460" title="1 of 2 branches missed.">            if(ballColour.equals(&quot;grey&quot;)){</span>
+<span class="nc" id="L461">                ballColourNum = 0;</span>
+<span class="fc bfc" id="L462" title="All 2 branches covered.">            } else if(ballColour.equals(&quot;orange&quot;)){</span>
+<span class="fc" id="L463">                ballColourNum = 1;</span>
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">            } else if(ballColour.equals(&quot;blue&quot;)){</span>
+<span class="fc" id="L465">                ballColourNum = 2;</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">            } else if(ballColour.equals(&quot;green&quot;)){</span>
+<span class="nc" id="L467">                ballColourNum = 3;</span>
+            } else {
+<span class="nc" id="L469">                ballColourNum = 4;</span>
+            }
+
+
+<span class="pc bpc" id="L473" title="1 of 2 branches missed.">            if(!board.getSpawners().isEmpty()) {</span>
+
+<span class="fc" id="L475">                Random random = new Random();</span>
+<span class="fc" id="L476">                int randomSpawner = random.nextInt(board.getSpawners().size());</span>
+
+
+<span class="fc" id="L479">                board.addBall(new Ball((int) board.getSpawners().get(randomSpawner).getX()/App.CELLSIZE, ((int) board.getSpawners().get(randomSpawner).getY() - App.TOPBAR)/App.CELLSIZE, ballColourNum, board, this));</span>
+            }
+        }
+<span class="fc" id="L482">    }</span>
+
+    private void displayCountdown(){
+<span class="pc bpc" id="L485" title="1 of 2 branches missed.">        if(!ballQueue.isEmpty()){</span>
+<span class="fc" id="L486">            fill(205, 204, 205);</span>
+<span class="fc" id="L487">            noStroke();</span>
+<span class="fc" id="L488">            rect(180, 20, 60, 25);</span>
+<span class="fc" id="L489">            textSize(21);</span>
+<span class="fc" id="L490">            fill(0);</span>
+<span class="fc" id="L491">            float roundedCountdown = Math.round(countdown/FPS * 10) / 10.0f;</span>
+<span class="fc" id="L492">            String formattedCountdown = String.format(&quot;%.1f&quot;, roundedCountdown);</span>
+<span class="fc" id="L493">            text((formattedCountdown), 190, 42);</span>
+
+<span class="fc" id="L495">        }else{</span>
+<span class="nc" id="L496">            fill(205, 204, 205);</span>
+<span class="nc" id="L497">            noStroke();</span>
+<span class="nc" id="L498">            rect(180, 20, 60, 25);</span>
+<span class="nc" id="L499">            fill(0);</span>
+<span class="nc" id="L500">            countdown = spawnInterval * FPS;</span>
+        }
+
+
+<span class="fc" id="L504">    }</span>
+
+    private void initaliseYellowTiles(){
+<span class="nc" id="L507">        PImage yellowWall = sprites.get(&quot;wall4&quot;);</span>
+<span class="nc" id="L508">        yellowTiles.add(new YellowTile(0, App.TOPBAR, yellowWall, this));</span>
+<span class="nc" id="L509">        yellowTiles.add(new YellowTile(width - CELLSIZE, height - CELLSIZE, yellowWall, this));</span>
+<span class="nc" id="L510">    }</span>
+
+    private void updateAndDisplayYellowTiles(){
+<span class="nc bnc" id="L513" title="All 2 branches missed.">        for(YellowTile yellowTile : yellowTiles) {</span>
+<span class="nc" id="L514">            yellowTile.update();</span>
+<span class="nc" id="L515">            yellowTile.display();</span>
+<span class="nc" id="L516">        }</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">        if(timer.getTime() &lt;= 0) {</span>
+<span class="nc" id="L518">            updateLevel();</span>
+        }
+<span class="nc" id="L520">    }</span>
+
 
 
     public static void main(String[] args) {
-<span class="nc" id="L303">        PApplet.main(&quot;inkball.App&quot;);</span>
-<span class="nc" id="L304">    }</span>
+<span class="nc" id="L525">        PApplet.main(&quot;inkball.App&quot;);</span>
+<span class="nc" id="L526">    }</span>
 
 }
 

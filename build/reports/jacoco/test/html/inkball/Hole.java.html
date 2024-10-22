@@ -23,13 +23,23 @@ public class Hole extends GameObject {
 <span class="nc" id="L23">        return colour;</span>
     }
 
+    public float getCentreX() {
+<span class="fc" id="L27">        return x + (float) (App.CELLSIZE * 2) / 2;</span>
+    }
+
+    public float getCentreY() {
+<span class="fc" id="L31">        return y + (float) (App.CELLSIZE * 2) / 2;</span>
+    }
+
+
+
 
     @Override
     public void display(PApplet app) {
 
-<span class="fc" id="L30">        app.image(getImage(), x, y, App.CELLSIZE * 2, App.CELLSIZE * 2);</span>
+<span class="fc" id="L40">        app.image(getImage(), x, y, App.CELLSIZE * 2, App.CELLSIZE * 2);</span>
 
-<span class="fc" id="L32">    }</span>
+<span class="fc" id="L42">    }</span>
 
 
 }

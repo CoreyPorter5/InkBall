@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BallQueue.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">InkBall_Assignment_INFO1113</a> &gt; <a href="index.source.html" class="el_package">inkball</a> &gt; <span class="el_source">BallQueue.java</span></div><h1>BallQueue.java</h1><pre class="source lang-java linenums">package inkball;
+
+import processing.core.PGraphics;
+import processing.core.PImage;
+import java.util.ArrayList;
+
+public class BallQueue {
+
+    private ArrayList&lt;String&gt; queue;
+    private App app;
+    private ArrayList&lt;Float&gt; ballXPositions;
+<span class="fc" id="L12">    private static final float[] TARGET_POSITIONS = {20, 50, 80, 110, 140};</span>
+    private static final int MAX_DISPLAY_BALLS = 5;
+<span class="fc" id="L14">    private boolean ballsAreMoving = false;</span>
+
+<span class="fc" id="L16">    public BallQueue(ArrayList&lt;String&gt; queue, App app) {</span>
+<span class="fc" id="L17">        this.queue = queue;</span>
+<span class="fc" id="L18">        this.app = app;</span>
+<span class="fc" id="L19">        this.ballXPositions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L20">        int numBalls = Math.min(MAX_DISPLAY_BALLS, queue.size());</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        for (int i = 0; i &lt; numBalls; i++) {</span>
+<span class="fc" id="L22">            ballXPositions.add(TARGET_POSITIONS[i]);</span>
+        }
+
+
+
+
+
+
+<span class="fc" id="L30">    }</span>
+
+    public boolean isEmpty() {
+<span class="fc" id="L33">        return queue.isEmpty();</span>
+    }
+
+    public String dequeue() {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (!queue.isEmpty()) {</span>
+<span class="fc" id="L38">            String removedBall = queue.remove(0);</span>
+<span class="fc" id="L39">            ballXPositions.remove(0);</span>
+<span class="fc" id="L40">            ballsAreMoving = true;</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">            if (queue.size() &gt;= MAX_DISPLAY_BALLS) {</span>
+<span class="nc" id="L42">                ballXPositions.add(TARGET_POSITIONS[MAX_DISPLAY_BALLS - 1] + 30);</span>
+            }
+<span class="fc" id="L44">            return removedBall;</span>
+        }
+<span class="nc" id="L46">        return null;</span>
+    }
+
+    public void enqueue(String ballColor) {
+<span class="nc" id="L50">        queue.add(ballColor);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (queue.size() &lt;= MAX_DISPLAY_BALLS) {</span>
+<span class="nc" id="L52">            ballXPositions.add(TARGET_POSITIONS[queue.size() - 1]);</span>
+        } else {
+<span class="nc" id="L54">            ballXPositions.add(TARGET_POSITIONS[MAX_DISPLAY_BALLS - 1] + 30);</span>
+        }
+<span class="nc" id="L56">    }</span>
+
+    public void displayNextBalls() {
+<span class="fc" id="L59">        app.rect(15, 10, 160, 38);</span>
+<span class="fc" id="L60">        int numBalls = Math.min(MAX_DISPLAY_BALLS, queue.size());</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        for (int i = 0; i &lt; numBalls; i++) {</span>
+<span class="fc" id="L62">            String ballColor = queue.get(i);</span>
+<span class="fc" id="L63">            PImage ballImage = app.getBallImage(ballColor);</span>
+<span class="fc" id="L64">            float currentX = ballXPositions.get(i);</span>
+<span class="fc" id="L65">            float targetX = TARGET_POSITIONS[i];</span>
+
+<span class="pc bpc" id="L67" title="2 of 4 branches missed.">            if (ballsAreMoving &amp;&amp; currentX &gt; targetX) {</span>
+<span class="fc" id="L68">                currentX -= 1;</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">                if (currentX &lt; targetX) {</span>
+<span class="nc" id="L70">                    currentX = targetX;</span>
+                }
+<span class="fc" id="L72">                ballXPositions.set(i, currentX);</span>
+            }
+
+<span class="fc" id="L75">            app.image(ballImage, currentX, 15, 24, 24);</span>
+        }
+
+<span class="nc" id="L78">        boolean allBallsAtTarget = true;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (int i = 0; i &lt; numBalls; i++) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (ballXPositions.get(i) &gt; TARGET_POSITIONS[i]) {</span>
+<span class="nc" id="L81">                allBallsAtTarget = false;</span>
+<span class="nc" id="L82">                break;</span>
+            }
+        }
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (allBallsAtTarget) {</span>
+<span class="nc" id="L86">            ballsAreMoving = false;</span>
+        }
+<span class="nc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

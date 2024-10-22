@@ -3,17 +3,19 @@ package inkball;
 public class ScoreBoard {
 
 
-    private int score;
+
     private App app;
+    private int remainingTime;
+    private int lastUpdateTime;
 
-    public ScoreBoard(int score, App app) {
-        this.score = score;
+
+    public ScoreBoard(App app) {
         this.app = app;
+        this.remainingTime = 0;
+        this.lastUpdateTime = app.millis();
     }
 
-    public void update(int score){
-        this.score = score;
-    }
+
 
     public void display(){
         app.fill(205, 204, 205);
@@ -21,6 +23,26 @@ public class ScoreBoard {
         app.rect(455, 12, 150, 30);
         app.textSize(21);
         app.fill(0);
-        app.text("Score:  " + score, 455, 30);
+        app.text("Score:  " + app.score, 455, 30);
+    }
+
+
+
+    public void addTimeToScore(int time){
+        this.remainingTime = time;
+    }
+
+
+    public void updateScoreWithTime(){
+        if(remainingTime > 0){
+            int currentTime = app.millis();
+            if (currentTime - lastUpdateTime >= 67) {
+                app.score++;
+                remainingTime--;
+                app.timer.setTime(remainingTime);
+                lastUpdateTime = currentTime;
+
+            }
+        }
     }
 }
