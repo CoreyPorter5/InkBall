@@ -12,7 +12,6 @@ import java.util.*;
 public class App extends PApplet {
 
     public static final int CELLSIZE = 32; //8;
-    public static final int CELLHEIGHT = 32;
 
     public static final int CELLAVG = 32;
     public static final int TOPBAR = 64;
