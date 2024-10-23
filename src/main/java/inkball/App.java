@@ -13,21 +13,21 @@ public class App extends PApplet {
 
     public static final int CELLSIZE = 32; //8;
 
-    public static final int CELLAVG = 32;
+
     public static final int TOPBAR = 64;
     public static int WIDTH = 576; //CELLSIZE*BOARD_WIDTH;
     public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;
-    public static final int BOARD_WIDTH = WIDTH/CELLSIZE;
-    public static final int BOARD_HEIGHT = 20;
+
 
     private boolean paused = false;
     protected boolean levelWin = false;
 
-    public static final int INITIAL_PARACHUTES = 1;
+
 
     public static final int FPS = 30;
 
     private String configPath;
+    private JSONObject config;
     private int currentLevel;
     private JSONArray levels;
     private Board board;
@@ -38,7 +38,6 @@ public class App extends PApplet {
     private ScoreBoard scoreBoard;
     private int spawnInterval;
     private float countdown;
-    private char lastKey;
 
     private float scoreIncreaseModifier;
     private float scoreDecreaseModifier;
@@ -75,6 +74,7 @@ public class App extends PApplet {
 	@Override
     public void setup() {
         frameRate(FPS);
+        config = loadJSONObject(configPath);
 
         playerLines = new ArrayList<>();
         yellowTiles = new ArrayList<>();
@@ -98,7 +98,12 @@ public class App extends PApplet {
                 "wall1",
                 "wall2",
                 "wall3",
-                "wall4"
+                "wall4",
+                "wall5",
+                "wall6",
+                "wall7",
+                "wall8",
+                "wall9"
         };
 
         for (String sprite : spriteNames) {
@@ -131,6 +136,10 @@ public class App extends PApplet {
             default:
                 return null;
         }
+    }
+
+    public JSONObject getConfig(){
+        return config;
     }
 
 

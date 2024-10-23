@@ -8,8 +8,10 @@ import java.util.*;
 
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
 
-
+import static processing.core.PApplet.loadJSONObject;
 
 
 public class Board {
@@ -32,7 +34,6 @@ public class Board {
     private CollisionHandler collisionHandler;
 
     public Board(String layoutPath, HashMap<String, PImage> sprites, App app) {
-        //this.layoutPath = layoutPath;
         this.layoutPath = layoutPath;
         this.layout = new char[18][18];
         this.holes = new ArrayList<>();
@@ -43,9 +44,9 @@ public class Board {
         this.sprites = sprites;
         this.app = app;
         this.collisionHandler = new CollisionHandler(app, this);
-        bricks = new ArrayList<>();
-        loadBricks(layoutPath, sprites);
+        this.bricks = new ArrayList<>();
         loadLayout(this.layoutPath);
+        loadBricks(app.getConfig());
     }
 
     private void loadLayout(String layoutPath) {
@@ -161,6 +162,10 @@ public class Board {
             spawner.display(app);
         }
 
+        for (Brick brick : bricks) {
+            brick.display(app);
+        }
+
 
     }
 
@@ -169,14 +174,6 @@ public class Board {
     }
 
 
-    public void removeBall(Ball ball) {
-        balls.remove(ball);
-    }
-
-    public void removeBalls() {
-        balls.removeAll(ballsToRemove);
-        ballsToRemove.clear();
-    }
 
     public PImage getHoleImage(int colour) {
         return sprites.get("hole" + colour);
@@ -206,8 +203,24 @@ public class Board {
         collisionHandler.testForCollisions(ball);
     }
 
-    private void loadBricks(String layout, HashMap<String, PImage> sprites){
-        // Load the bricks from the layout string and populate the bricks array
+    private void loadBricks(JSONObject config) {
+        JSONArray levels = config.getJSONArray("levels");
+        for (int i = 0; i < levels.size(); i++) {
+            JSONObject level = levels.getJSONObject(i);
+            if (level.hasKey("bricks")) {
+                JSONArray bricksConfig = level.getJSONArray("bricks");
+                for (int j = 0; j < bricksConfig.size(); j++) {
+                    JSONObject brickConfig = bricksConfig.getJSONObject(j);
+                    int x = brickConfig.getInt("x");
+                    int y = brickConfig.getInt("y");
+                    int colour = brickConfig.getInt("colour");
+                    int maxHits = brickConfig.getInt("maxHits");
+                    PImage normalBrick = sprites.get("wall" + colour);
+                    PImage crackedBrick = sprites.get("wall" + (colour + 5));
+                    bricks.add(new Brick(x, y, normalBrick, crackedBrick, this, colour, maxHits));
+                }
+            }
+        }
     }
 
     public List<Brick> getBricks(){

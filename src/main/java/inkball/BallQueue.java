@@ -22,11 +22,6 @@ public class BallQueue {
             ballXPositions.add(TARGET_POSITIONS[i]);
         }
 
-
-
-
-
-
     }
 
     public boolean isEmpty() {

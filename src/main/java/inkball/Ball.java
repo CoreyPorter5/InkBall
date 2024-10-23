@@ -24,6 +24,7 @@ public class Ball extends GameObject implements Updatable {
         this.originalXVelocity = x_velocity;
         this.originalYVelocity = y_velocity;
         this.colour = colour;
+        this.collision = new CollisionHandler(app, board);
 
 
 
@@ -86,10 +87,6 @@ public class Ball extends GameObject implements Updatable {
         this.y_velocity += force.y;
     }
 
-    public void resetVelocity() {
-        this.x_velocity = this.originalXVelocity;
-        this.y_velocity = this.originalYVelocity;
-    }
 
     public void changeColour(int newColour){
         if(newColour == 0){
@@ -112,6 +109,7 @@ public class Ball extends GameObject implements Updatable {
     @Override
     public void update(){
         board.testForCollisions(this);
+
 
 
 
@@ -145,9 +143,11 @@ public class Ball extends GameObject implements Updatable {
     }
 
 
+
+
     @Override
     public void display(PApplet app) {
-        app.image(getImage(), (float)(x - radius), (float)(y - radius), radius * 2, radius * 2);
+        app.image(getImage(), (x - radius), (y - radius), radius * 2, radius * 2);
 
 
     }

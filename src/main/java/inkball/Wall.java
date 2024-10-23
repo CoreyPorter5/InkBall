@@ -25,7 +25,7 @@ public class Wall extends GameObject {
 
     @Override
     public void display(PApplet app) {
-        app.image(getImage(), (float)x , (float)y, App.CELLSIZE, App.CELLSIZE);
+        app.image(getImage(), x , y, App.CELLSIZE, App.CELLSIZE);
     }
 
 }

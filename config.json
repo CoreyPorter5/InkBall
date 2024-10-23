@@ -3,15 +3,37 @@
     {
       "layout": "level1.txt",
       "time": 120,
-      "spawn_interval": 1,
+      "spawn_interval": 10,
       "score_increase_from_hole_capture_modifier": 1.0,
       "score_decrease_from_wrong_hole_modifier": 1.0,
-      "balls": ["blue", "orange", "grey", "blue", "green", "yellow"]
+      "balls": ["blue", "orange", "grey", "blue", "green", "yellow"],
+      "bricks": [
+        {"x": 14, "y": 2, "colour": 1, "maxHits": 3},
+        {"x": 14, "y": 1, "colour": 1, "maxHits": 3},
+        {"x": 14, "y": 3, "colour": 1, "maxHits": 3},
+        {"x": 15, "y": 3, "colour": 1, "maxHits": 3},
+        {"x": 16, "y": 3, "colour": 1, "maxHits": 3},
+
+        {"x": 14, "y": 15, "colour": 2, "maxHits": 3},
+        {"x": 14, "y": 14, "colour": 2, "maxHits": 3},
+        {"x": 15, "y": 14, "colour": 2, "maxHits": 3},
+        {"x": 16, "y": 14, "colour": 2, "maxHits": 3},
+        {"x": 14, "y": 16, "colour": 2, "maxHits": 3},
+
+        {"x": 4, "y": 13, "colour": 0, "maxHits": 3},
+        {"x": 3, "y": 13, "colour": 0, "maxHits": 3},
+        {"x": 2, "y": 13, "colour": 0, "maxHits": 3},
+        {"x": 4, "y": 3, "colour": 0, "maxHits": 3},
+        {"x": 3, "y": 3, "colour": 0, "maxHits": 3},
+        {"x": 2, "y": 3, "colour": 0, "maxHits": 3}
+
+
+      ]
     },
     {
       "layout": "level2.txt",
-      "time": 5,
-      "spawn_interval": 1,
+      "time": 180,
+      "spawn_interval": 6,
       "score_increase_from_hole_capture_modifier": 1.2,
       "score_decrease_from_wrong_hole_modifier": 1.1,
       "balls": ["green", "grey", "grey", "blue", "yellow", "orange", "blue", "grey"]
@@ -19,7 +41,7 @@
     {
       "layout": "level3.txt",
       "time": 180,
-      "spawn_interval": 1,
+      "spawn_interval": 5,
       "score_increase_from_hole_capture_modifier": 1.3,
       "score_decrease_from_wrong_hole_modifier": 1.3,
       "balls": ["grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey"]

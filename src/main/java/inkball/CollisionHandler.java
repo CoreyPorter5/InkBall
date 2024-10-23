@@ -28,6 +28,12 @@ public class CollisionHandler {
 
         }
 
+        for (Brick brick : board.getBricks()) {
+            if (handleCollisionWithBrick(ball, brick)) {
+                break;
+            }
+        }
+
         for (PlayerLine line : app.playerLines) {
             if (handleCollisionwithPlayerLines(ball, line)) {
                 break;
@@ -112,6 +118,44 @@ public class CollisionHandler {
             return false;
 
         }
+
+
+    public boolean handleCollisionWithBrick (Ball ball, Brick brick){
+
+
+
+        PVector ballNextPos = new PVector((float) (ball.getX() + ball.getX_velocity()), (float) (ball.getY() + ball.getY_velocity()));
+
+
+        PVector[] points = {
+                new PVector(brick.getX(), brick.getY()),
+                new PVector(brick.getX() + App.CELLSIZE, brick.getY()),
+                new PVector(brick.getX() + App.CELLSIZE, brick.getY() + App.CELLSIZE),
+                new PVector(brick.getX(), brick.getY() + App.CELLSIZE)
+        };
+
+
+        for (int i = 0; i < points.length; i++) {
+            PVector p1 = points[i];
+            PVector p2 = points[(i + 1) % points.length];
+
+            if (isCollidingWithLineSegment(ballNextPos, p1, p2)) {
+                if (brick.canBeDamagedBy(ball.getColour())) {
+                    brick.hit();
+                    handleCollisionResponse(ball, p1, p2, ballNextPos);
+                    return true;
+                }else{
+                    handleCollisionResponse(ball, p1, p2, ballNextPos);
+                    return true;
+                }
+
+            }
+        }
+
+
+        return false;
+
+    }
 
 
         protected boolean isCollidingWithLineSegment (PVector ballPos, PVector p1, PVector p2){
