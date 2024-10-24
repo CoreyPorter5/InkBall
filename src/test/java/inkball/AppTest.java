@@ -18,64 +18,66 @@ public class AppTest {
     }
     @Test
     public void testDrawWhenCountdownZeroSpawnsBallAndResetsCountdown() {
+        //Tests that a ball is spawned and the countdown is reset when the countdown reaches 0
         app.paused = false;
-        app.timer.setTime(10); // time > 0
-        app.countdown = 0; // countdown <= 0
+        app.timer.setTime(10);
+        app.countdown = 0;
 
         int initialBallCount = app.board.getBalls().size();
 
         app.draw();
 
-        // Check that countdown has been reset
         assertEquals(app.spawnInterval * App.FPS, app.countdown);
 
-        // Check that a new ball has been spawned
         int newBallCount = app.board.getBalls().size();
         assertEquals(initialBallCount + 1, newBallCount);
     }
 
     @Test
     public void testDrawWhenCountdownGreaterThanZeroCountdownDecrements() {
+        //Tests that the countdown decrements when it is greater than 0
         app.paused = false;
-        app.timer.setTime(10); // time > 0
-        app.countdown = 5; // countdown > 0
+        app.timer.setTime(10);
+        app.countdown = 5;
 
         float initialCountdown = app.countdown;
 
         app.draw();
 
-        // Check that countdown has decreased by 1
         assertEquals(initialCountdown - 1, app.countdown);
     }
 
     @Test
     public void testDrawWhenPaused() {
+        //Tests that the countdown does not decrement or increment when the game is paused
         app.paused = true;
-        app.timer.setTime(10); // time > 0
+        app.timer.setTime(10);
 
         float initialCountdown = app.countdown;
 
         app.draw();
 
-        // Ensure countdown has not changed
+
         assertEquals(initialCountdown, app.countdown);
     }
 
     @Test
-    public void testDrawWhenTimerZero() {
+    public void testWhenTimerZero() {
+        //Tests that the level is not won when the timer reaches 0
         app.paused = false;
-        app.timer.setTime(0); // time <= 0
+        app.timer.setTime(0);
 
         app.draw();
 
-        // Verify that levelWin is still false
+
         assertFalse(app.levelWin);
     }
 
     @Test
     public void testDrawWhenLevelWin() {
+        //Tests that levelWin variable is set to true and yellow tiles are initialized when the level is won
         app.paused = false;
-        app.timer.setTime(10); // time > 0
+        app.timer.setTime(10);
         app.levelWin = false;
 
         app.board.getBalls().clear();
@@ -83,50 +85,49 @@ public class AppTest {
 
         app.draw();
 
-        // Check that levelWin has been set to true
         assertTrue(app.levelWin);
 
-        // Check that yellowTiles have been initialized
         assertFalse(app.yellowTiles.isEmpty());
     }
 
     @Test
     public void testDrawWhenLevelWinIsTrue() {
+        //Tests that the remaining time in the scoreboard is decremented when the level is won
         app.paused = false;
-        app.timer.setTime(10); // time > 0
+        app.timer.setTime(10);
         app.levelWin = true;
 
         int initialRemainingTime = app.scoreBoard.remainingTime;
 
         app.draw();
 
-        // Assuming scoreBoard.updateScoreWithTime() decreases remainingTime
         int newRemainingTime = app.scoreBoard.remainingTime;
         assertTrue(newRemainingTime <= initialRemainingTime);
     }
 
     @Test
     public void testDrawWhenGameEnded() {
+        //Tests that yellow tiles are cleared when the game has ended
         app.paused = false;
         app.levelWin = true;
-        app.timer.setTime(0); // time <= 0
-        app.currentLevel = app.levels.size() - 1; // last level
+        app.timer.setTime(0);
+        app.currentLevel = app.levels.size() - 1;
 
-        app.yellowTiles.add(new YellowTile(0, App.TOPBAR, null, app)); // Ensure yellowTiles is not empty
+        app.yellowTiles.add(new YellowTile(0, App.TOPBAR, null, app));
 
         app.draw();
 
-        // Check that yellowTiles have been cleared
         assertTrue(app.yellowTiles.isEmpty());
     }
 
     @Test
     public void testDrawWhenBallShouldBeRemoved() {
+        //Tests that a ball is removed from the board when it should be removed
         app.paused = false;
-        app.timer.setTime(10); // time > 0
-        app.countdown = 5; // countdown > 0
+        app.timer.setTime(10);
+        app.countdown = 5;
 
-        // Create a ball that should be removed
+
         Ball ball = new Ball(100, 100, 0, app.board, app) {
             @Override
             public boolean shouldBeRemoved() {
@@ -139,17 +140,16 @@ public class AppTest {
 
         app.draw();
 
-        // Ensure the ball has been removed
         assertFalse(app.board.getBalls().contains(ball));
     }
 
     @Test
     public void testDrawWhenBallShouldNotBeRemoved() {
+        //Tests that a ball is not removed from the board when it should not be removed
         app.paused = false;
-        app.timer.setTime(10); // time > 0
-        app.countdown = 5; // countdown > 0
+        app.timer.setTime(10);
+        app.countdown = 5;
 
-        // Create a ball that should not be removed
         Ball ball = new Ball(100, 100, 0, app.board, app) {
             @Override
             public boolean shouldBeRemoved() {
@@ -162,17 +162,18 @@ public class AppTest {
 
         app.draw();
 
-        // Ensure the ball is still present
+
         assertTrue(app.board.getBalls().contains(ball));
     }
 
     @Test
     public void testDrawPlayerLinesAreDrawn() {
+        //Tests that player lines are drawn on the screen without any errors
         app.paused = false;
-        app.timer.setTime(10); // time > 0
+        app.timer.setTime(10);
         app.levelWin = false;
 
-        // Add a player line
+
         PlayerLine line = new PlayerLine();
         line.addPoint(100, 100);
         line.addPoint(150, 150);
@@ -180,7 +181,6 @@ public class AppTest {
 
         app.draw();
 
-        // Since we can't check graphical output, we ensure no exceptions occur
         assertTrue(true);
     }
 

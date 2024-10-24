@@ -23,6 +23,7 @@ public class SampleTest {
 
     @Test
     public void simpleTest() {
+        //Tests that hte app instance is created correctly
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -32,6 +33,7 @@ public class SampleTest {
 
     @Test
     public void yellowTileMoveToTheRightTest() {
+        //Tests that the yellow tile moves to the right
         App app = new App();
 
         app.loop();
@@ -58,6 +60,7 @@ public class SampleTest {
 
     @Test
     public void yellowTileMoveDownTest() {
+        //Tests that the yellow tile moves down
         App app = new App();
 
         app.loop();
@@ -82,6 +85,7 @@ public class SampleTest {
 
     @Test
     public void yellowTileMoveToTheLeftTest() {
+        //Tests that the yellow tile moves to the left
         App app = new App();
 
         app.loop();
@@ -100,7 +104,6 @@ public class SampleTest {
         assertNotEquals(initialX, yellowTile.getX(), "X position should have changed");
 
 
-        // Further simulate and verify
         app.delay(67);
         yellowTile.update();
 
@@ -109,6 +112,7 @@ public class SampleTest {
 
     @Test
     public void yellowTileMoveUpTest() {
+        //Tests that the yellow tile moves up
         App app = new App();
 
         app.loop();
@@ -135,6 +139,7 @@ public class SampleTest {
 
     @Test
     public void EndTextTest() {
+        //Tests that the end text is displayed when the game ends with the yellow tiles
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -164,6 +169,7 @@ public class SampleTest {
 
     @Test
     public void EndTextTestWithNoYellowTiles() {
+        //Tests that the end text is displayed when the game ends without the yellow tiles
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -192,6 +198,7 @@ public class SampleTest {
 
     @Test
     public void getBallColourStringGreyTest(){
+        //Tests that the correct colour is returned for the ball from the colour index
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -204,6 +211,7 @@ public class SampleTest {
 
     @Test
     public void getBallColourStringOrangeTest(){
+        //Tests that the correct colour is returned for the ball from the colour index
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -216,6 +224,7 @@ public class SampleTest {
 
     @Test
     public void getBallColourStringBlueTest(){
+        //Tests that the correct colour is returned for the ball from the colour index
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -228,6 +237,7 @@ public class SampleTest {
 
     @Test
     public void getBallColourStringGreenTest(){
+        //Tests that the correct colour is returned for the ball from the colour index
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -240,6 +250,7 @@ public class SampleTest {
 
     @Test
     public void getBallColourStringYellowTest(){
+        //Tests that the correct colour is returned for the ball from the colour index
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -252,6 +263,7 @@ public class SampleTest {
 
     @Test
     public void getBallColourStringNullTest(){
+        //Tests that the correct colour is returned for the ball from the colour index
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -264,6 +276,7 @@ public class SampleTest {
 
     @Test
     public void spawnBallTest(){
+        //Tests that a ball is spawned correctly
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
@@ -275,6 +288,7 @@ public class SampleTest {
 
     @Test
     public void spawnGreenBallTest(){
+        //Tests that a green ball is spawned correctly
         App app = new App();
         Ball ball = new Ball(100, 100, 3, app.board, app);
         app.loop();
@@ -288,21 +302,17 @@ public class SampleTest {
 
     @Test
     public void ballShouldBeRemovedTest(){
+        //Tests that a ball is removed correctly and the score is updated when it matches the hole colour
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
         app.setup();
         app.delay(1000);
-        // Create a Ball instance
         Ball ball = new Ball(100, 100, 1, app.board, app);
 
-        // Create a Hole instance with a matching color
         Hole hole = new Hole(100, 100, 1, app.board);
 
-        // Set the distance to be less than 5.5
         float distance = 5.0f;
-
-        // Simulate the condition
         if (distance < 5.5) {
             if (hole.getColor() == ball.getColour() || ball.getColour() == 0 || hole.getColor() == 0) {
                 app.increaseScore(hole.getColor());
@@ -312,26 +322,24 @@ public class SampleTest {
             }
         }
 
-        // Verify the expected behavior
-        // Assuming increaseScore and decreaseScore methods update a score variable
         assertEquals(1, app.score, "Score should be increased by 1");
     }
 
     @Test
     public void testYellowTilesCleared() {
+        //Tests that the yellow tiles are cleared when the game ends
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);
         app.setup();
         app.delay(1000);
 
-        // Set up the conditions
         app.currentLevel = app.levels.size() - 1;
         app.levelWin = true;
-        app.timer = new Timer(0, app); // Ensure timer is at 0
+        app.timer = new Timer(0, app);
         app.yellowTiles = new ArrayList<>();
         app.yellowTiles.add(new YellowTile(0, App.TOPBAR, app.loadImage("wall4"), app));
-        // Call the code to be tested
+
         if (app.currentLevel == app.levels.size() - 1 && app.levelWin && app.timer.getTime() <= 0) {
             if (!app.yellowTiles.isEmpty()) {
                 app.yellowTiles.clear();
@@ -339,12 +347,12 @@ public class SampleTest {
             }
         }
 
-        // Verify that yellowTiles is cleared
         assertTrue(app.yellowTiles.isEmpty(), "yellowTiles should be cleared");
     }
 
     @Test
     public void updateLevelTest(){
+        //Tests that the level is updated correctly
         App app = new App();
         app.loop();
         PApplet.runSketch(new String[]{"App"}, app);

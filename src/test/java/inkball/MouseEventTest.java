@@ -26,6 +26,7 @@ public class MouseEventTest {
 
     @Test
     public void testMouseReleasedRight(){
+        //Tests that the player line is removed when the right mouse button is released
         App app = new App();
 
         if (app.playerLines == null) {
@@ -46,6 +47,7 @@ public class MouseEventTest {
 
     @Test
     public void testMouseReleasedLeft(){
+        //Tests that the current line is set to null when the left mouse button is released
         App app = new App();
         PApplet.runSketch(new String[] { "App" }, app);
         app.setup();
@@ -66,6 +68,7 @@ public class MouseEventTest {
 
     @Test
     public void testMouseReleasedLeftwithCTRL(){
+        //Tests that the player line is removed when the left mouse button is released with the CTRL key pressed
         App app = new App();
 
         if (app.playerLines == null) {
@@ -85,6 +88,7 @@ public class MouseEventTest {
     }
     @Test
     public void testSpaceKeyTogglesPause() {
+        //Tests that the space key toggles the game between paused and unpaused
         App app = new App();
         PApplet.runSketch(new String[] { "App" }, app);
         app.setup();
@@ -104,6 +108,7 @@ public class MouseEventTest {
 
     @Test
     public void testRKeyRestartsLevel() {
+        //Tests that the R key restarts the current level
         App app = new App();
         PApplet.runSketch(new String[] { "App" }, app);
         app.setup();
@@ -120,6 +125,7 @@ public class MouseEventTest {
 
     @Test
     public void mousePressedLeftTest(){
+        //Tests that the current line is not null after the left mouse button is pressed
         App app = new App();
         PApplet.runSketch(new String[] { "App" }, app);
         app.setup();

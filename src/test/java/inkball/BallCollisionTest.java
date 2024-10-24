@@ -29,6 +29,7 @@ public class BallCollisionTest {
 
     @Test
     public void testBallUpdatePosition() {
+        // Test that the ball's position updates correctly based on its velocity
         Ball ball = new Ball(100, 100, 0, board, app);
 
         float initialX = ball.getX();
@@ -44,6 +45,7 @@ public class BallCollisionTest {
 
     @Test
     public void testBallandWallCollision() {
+        //Test that the ball correctly collides with a wall
         Wall wall = new Wall(5, 5, sprites.get("wall0"), board, 1);
         board.getWalls().add(wall);
 
@@ -60,6 +62,7 @@ public class BallCollisionTest {
 
     @Test
     public void testChooseCloserNormal() {
+        //Tests that the correct normal vector is chosen based on the balls position
         CollisionHandler collision = new CollisionHandler(app, board);
         PVector p1 = new PVector(0, 0);
         PVector p2 = new PVector(10, 0);
@@ -74,6 +77,7 @@ public class BallCollisionTest {
 
     @Test
     public void testCollisonHandlerBallWallCollision() {
+        //Tests that the ball's velocity is updated correctly after colliding with a wall
         Wall wall = new Wall(5, 5, sprites.get("wall0"), board, 1);
         board.getWalls().add(wall);
 
