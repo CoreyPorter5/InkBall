@@ -5,7 +5,7 @@ public class ScoreBoard {
 
 
     private App app;
-    private int remainingTime;
+    protected int remainingTime;
     private int lastUpdateTime;
 
 

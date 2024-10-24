@@ -81,4 +81,9 @@ public class BallQueue {
             ballsAreMoving = false;
         }
     }
+
+    public void clear() {
+        queue.clear();
+        ballXPositions.clear();
+    }
 }

@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="inkball.PlayerDrawnLineTest" tests="3" skipped="0" failures="1" errors="0" timestamp="2024-10-24T03:38:29" hostname="linux-mint" time="0.121">
+<testsuite name="inkball.AppTest" tests="10" skipped="0" failures="1" errors="0" timestamp="2024-10-24T03:38:18" hostname="linux-mint" time="10.692">
   <properties/>
-  <testcase name="testBallAndPlayerLineCollision()" classname="inkball.PlayerDrawnLineTest" time="0.002"/>
-  <testcase name="testLineDrawing()" classname="inkball.PlayerDrawnLineTest" time="0.052"/>
-  <testcase name="testCollisionHandlerBallPlayerLine()" classname="inkball.PlayerDrawnLineTest" time="0.065">
-    <failure message="org.opentest4j.AssertionFailedError: Ball X velocity did not update correctly ==&gt; expected: &lt;-2.0&gt; but was: &lt;2.0&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: Ball X velocity did not update correctly ==&gt; expected: &lt;-2.0&gt; but was: &lt;2.0&gt;
-	at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:55)
-	at org.junit.jupiter.api.AssertionUtils.failNotEqual(AssertionUtils.java:62)
-	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:86)
-	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1003)
-	at inkball.PlayerDrawnLineTest.testCollisionHandlerBallPlayerLine(PlayerDrawnLineTest.java:59)
+  <testcase name="testDrawWhenBallShouldBeRemoved()" classname="inkball.AppTest" time="1.196"/>
+  <testcase name="testDrawWhenPaused()" classname="inkball.AppTest" time="1.058"/>
+  <testcase name="testDrawWhenTimerZero()" classname="inkball.AppTest" time="1.053"/>
+  <testcase name="testDrawWhenLevelWin()" classname="inkball.AppTest" time="1.055"/>
+  <testcase name="testDrawWhenGameEnded()" classname="inkball.AppTest" time="1.055">
+    <failure message="java.lang.NullPointerException" type="java.lang.NullPointerException">java.lang.NullPointerException
+	at processing.core.PGraphics.image(PGraphics.java:3791)
+	at processing.core.PApplet.image(PApplet.java:12621)
+	at inkball.YellowTile.display(YellowTile.java:50)
+	at inkball.App.updateAndDisplayYellowTiles(App.java:524)
+	at inkball.App.draw(App.java:409)
+	at inkball.AppTest.testDrawWhenGameEnded(AppTest.java:117)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -96,6 +99,11 @@
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
 </failure>
   </testcase>
+  <testcase name="testDrawWhenCountdownZeroSpawnsBallAndResetsCountdown()" classname="inkball.AppTest" time="1.055"/>
+  <testcase name="testDrawPlayerLinesAreDrawn()" classname="inkball.AppTest" time="1.053"/>
+  <testcase name="testDrawWhenBallShouldNotBeRemoved()" classname="inkball.AppTest" time="1.053"/>
+  <testcase name="testDrawWhenLevelWinIsTrue()" classname="inkball.AppTest" time="1.055"/>
+  <testcase name="testDrawWhenCountdownGreaterThanZeroCountdownDecrements()" classname="inkball.AppTest" time="1.053"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

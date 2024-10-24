@@ -34,6 +34,15 @@ public class Board {
     private CollisionHandler collisionHandler;
 
     public Board(String layoutPath, HashMap<String, PImage> sprites, App app) {
+        if (layoutPath == null) {
+            System.out.println("layoutPath is null");
+        }
+        if (sprites == null) {
+            System.out.println("sprites is null");
+        }
+        if (app == null) {
+            System.out.println("app is null");
+        }
         this.layoutPath = layoutPath;
         this.layout = new char[18][18];
         this.holes = new ArrayList<>();
@@ -46,7 +55,7 @@ public class Board {
         this.collisionHandler = new CollisionHandler(app, this);
         this.bricks = new ArrayList<>();
         loadLayout(this.layoutPath);
-        loadBricks(app.getConfig());
+        loadBricks();
     }
 
     private void loadLayout(String layoutPath) {
@@ -203,7 +212,8 @@ public class Board {
         collisionHandler.testForCollisions(ball);
     }
 
-    private void loadBricks(JSONObject config) {
+    private void loadBricks() {
+        JSONObject config = loadJSONObject(new File("config.json"));
         JSONArray levels = config.getJSONArray("levels");
         for (int i = 0; i < levels.size(); i++) {
             JSONObject level = levels.getJSONObject(i);

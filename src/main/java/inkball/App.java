@@ -19,25 +19,25 @@ public class App extends PApplet {
     public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;
 
 
-    private boolean paused = false;
+    protected boolean paused = false;
     protected boolean levelWin = false;
 
 
 
     public static final int FPS = 30;
 
-    private String configPath;
-    private JSONObject config;
-    private int currentLevel;
-    private JSONArray levels;
-    private Board board;
+    protected String configPath;
+    protected JSONObject config;
+    protected int currentLevel;
+    protected JSONArray levels;
+    protected Board board;
     public int score;
-    private int levelStartScore;
+    protected int levelStartScore;
     protected Timer timer;
-    private BallQueue ballQueue;
-    private ScoreBoard scoreBoard;
-    private int spawnInterval;
-    private float countdown;
+    protected BallQueue ballQueue;
+    protected ScoreBoard scoreBoard;
+    protected int spawnInterval;
+    protected float countdown;
 
     private float scoreIncreaseModifier;
     private float scoreDecreaseModifier;
@@ -45,11 +45,11 @@ public class App extends PApplet {
     private static final int[] SCORE_INCREASE = new int[5];
     private static final int[] SCORE_DECREASE = new int[5];
 
-    public List<PlayerLine> playerLines;
-    private List<YellowTile> yellowTiles;
-    private PlayerLine currentLine;
+    protected List<PlayerLine> playerLines;
+    protected List<YellowTile> yellowTiles;
+    protected PlayerLine currentLine;
 
-    private HashMap<String, PImage> sprites = new HashMap<>();
+    protected HashMap<String, PImage> sprites = new HashMap<>();
 
     public static Random random = new Random();
 	
@@ -66,6 +66,7 @@ public class App extends PApplet {
 	@Override
     public void settings() {
         size(WIDTH, HEIGHT);
+        config = loadJSONObject("config.json");
     }
 
     /**
@@ -74,7 +75,7 @@ public class App extends PApplet {
 	@Override
     public void setup() {
         frameRate(FPS);
-        config = loadJSONObject(configPath);
+        config = loadJSONObject("config.json");
 
         playerLines = new ArrayList<>();
         yellowTiles = new ArrayList<>();
@@ -220,7 +221,7 @@ public class App extends PApplet {
         ballQueue.enqueue(ballColour);
     }
 
-    private String getBallColourString(int color) {
+    protected String getBallColourString(int color) {
         switch (color) {
             case 0:
                 return "grey";
@@ -268,7 +269,7 @@ public class App extends PApplet {
         
     }
 
-    private void restartLevel(){
+    protected void restartLevel(){
         levelWin = false;
         score = levelStartScore;
         loadLevelData();
@@ -277,7 +278,7 @@ public class App extends PApplet {
         yellowTiles.clear();
     }
 
-    private void restartGame(){
+    protected void restartGame(){
         currentLevel = 0;
         score = 0;
         restartLevel();

@@ -3,7 +3,7 @@ package inkball;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-public class YellowTile {
+public class YellowTile implements Updatable {
     private int x, y;
     private PImage image;
     private App app;
@@ -17,6 +17,7 @@ public class YellowTile {
         this.lastUpdateTime = app.millis();
     }
 
+    @Override
     public void update() {
         int currentTime = app.millis();
         if (currentTime - lastUpdateTime >= 67) {
@@ -25,7 +26,15 @@ public class YellowTile {
         }
     }
 
-    private void moveClockwise() {
+    protected int getX(){
+        return this.x;
+    }
+
+    protected int getY(){
+        return this.y;
+    }
+
+    protected void moveClockwise() {
         if (y == App.TOPBAR && x < app.width - App.CELLSIZE) {
             x += App.CELLSIZE;
         } else if (x == app.width - App.CELLSIZE && y < app.height - App.CELLSIZE) {

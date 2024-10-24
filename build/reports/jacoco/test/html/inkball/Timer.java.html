@@ -2,7 +2,7 @@
 
 
 
-public class Timer {
+public class Timer implements Updatable{
 
     private int time;
     private App app;
@@ -17,47 +17,48 @@ public class Timer {
 <span class="fc" id="L17">        this.paused = false;</span>
 <span class="fc" id="L18">    }</span>
 
+    @Override
     public void update(){
-<span class="nc bnc" id="L21" title="All 4 branches missed.">        if(!paused &amp;&amp; !app.levelWin){</span>
-<span class="nc" id="L22">            int currentTime = app.millis();</span>
-<span class="nc bnc" id="L23" title="All 2 branches missed.">            if (currentTime - lastUpdateTime &gt; 1000) {</span>
-<span class="nc" id="L24">                time--;</span>
-<span class="nc" id="L25">                lastUpdateTime += 1000;</span>
+<span class="pc bpc" id="L22" title="1 of 4 branches missed.">        if(!paused &amp;&amp; !app.levelWin){</span>
+<span class="fc" id="L23">            int currentTime = app.millis();</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">            if (currentTime - lastUpdateTime &gt; 1000) {</span>
+<span class="fc" id="L25">                time--;</span>
+<span class="fc" id="L26">                lastUpdateTime += 1000;</span>
 
-<span class="nc bnc" id="L27" title="All 2 branches missed.">                if (time &lt; 0){</span>
-<span class="nc" id="L28">                    time = 0;</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">                if (time &lt; 0){</span>
+<span class="nc" id="L29">                    time = 0;</span>
                 }
             }
 
-<span class="nc" id="L32">        }else{</span>
-<span class="nc" id="L33">            lastUpdateTime = app.millis();</span>
+<span class="fc" id="L33">        }else{</span>
+<span class="fc" id="L34">            lastUpdateTime = app.millis();</span>
         }
 
-<span class="nc" id="L36">    }</span>
+<span class="fc" id="L37">    }</span>
 
     public void display() {
-<span class="nc" id="L39">        app.fill(205, 204, 205);</span>
-<span class="nc" id="L40">        app.noStroke();</span>
-<span class="nc" id="L41">        app.rect(450, 30, 150, 30);</span>
-<span class="nc" id="L42">        app.textSize(21);</span>
-<span class="nc" id="L43">        app.fill(0);</span>
-<span class="nc" id="L44">        app.text(&quot;Time:   &quot; + time, 455, 55);</span>
+<span class="fc" id="L40">        app.fill(205, 204, 205);</span>
+<span class="fc" id="L41">        app.noStroke();</span>
+<span class="fc" id="L42">        app.rect(450, 30, 150, 30);</span>
+<span class="fc" id="L43">        app.textSize(21);</span>
+<span class="fc" id="L44">        app.fill(0);</span>
+<span class="fc" id="L45">        app.text(&quot;Time:   &quot; + time, 455, 55);</span>
 
 
 
-<span class="nc" id="L48">    }</span>
+<span class="fc" id="L49">    }</span>
 
     public int getTime(){
-<span class="fc" id="L51">        return this.time;</span>
+<span class="fc" id="L52">        return this.time;</span>
     }
 
     public void setTime(int time){
-<span class="nc" id="L55">        this.time = time;</span>
-<span class="nc" id="L56">    }</span>
+<span class="fc" id="L56">        this.time = time;</span>
+<span class="fc" id="L57">    }</span>
 
     public void setPaused(boolean paused){
-<span class="nc" id="L59">        this.paused = paused;</span>
-<span class="nc" id="L60">    }</span>
+<span class="fc" id="L60">        this.paused = paused;</span>
+<span class="fc" id="L61">    }</span>
 
 
 }

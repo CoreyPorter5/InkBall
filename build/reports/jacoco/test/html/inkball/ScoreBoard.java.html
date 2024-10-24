@@ -5,7 +5,7 @@ public class ScoreBoard {
 
 
     private App app;
-    private int remainingTime;
+    protected int remainingTime;
     private int lastUpdateTime;
 
 
@@ -18,32 +18,32 @@ public class ScoreBoard {
 
 
     public void display(){
-<span class="nc" id="L21">        app.fill(205, 204, 205);</span>
-<span class="nc" id="L22">        app.noStroke();</span>
-<span class="nc" id="L23">        app.rect(455, 12, 150, 30);</span>
-<span class="nc" id="L24">        app.textSize(21);</span>
-<span class="nc" id="L25">        app.fill(0);</span>
-<span class="nc" id="L26">        app.text(&quot;Score:  &quot; + app.score, 455, 30);</span>
-<span class="nc" id="L27">    }</span>
+<span class="fc" id="L21">        app.fill(205, 204, 205);</span>
+<span class="fc" id="L22">        app.noStroke();</span>
+<span class="fc" id="L23">        app.rect(455, 12, 150, 30);</span>
+<span class="fc" id="L24">        app.textSize(21);</span>
+<span class="fc" id="L25">        app.fill(0);</span>
+<span class="fc" id="L26">        app.text(&quot;Score:  &quot; + app.score, 455, 30);</span>
+<span class="fc" id="L27">    }</span>
 
 
 
     public void addTimeToScore(int time){
-<span class="nc" id="L32">        this.remainingTime = time;</span>
-<span class="nc" id="L33">    }</span>
+<span class="fc" id="L32">        this.remainingTime = time;</span>
+<span class="fc" id="L33">    }</span>
 
 
     public void updateScoreWithTime(){
-<span class="nc bnc" id="L37" title="All 2 branches missed.">        if(remainingTime &gt; 0){</span>
-<span class="nc" id="L38">            int currentTime = app.millis();</span>
-<span class="nc bnc" id="L39" title="All 2 branches missed.">            if (currentTime - lastUpdateTime &gt;= 67) {</span>
-<span class="nc" id="L40">                app.score++;</span>
-<span class="nc" id="L41">                remainingTime--;</span>
-<span class="nc" id="L42">                app.timer.setTime(remainingTime);</span>
-<span class="nc" id="L43">                lastUpdateTime = currentTime;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if(remainingTime &gt; 0){</span>
+<span class="fc" id="L38">            int currentTime = app.millis();</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">            if (currentTime - lastUpdateTime &gt;= 67) {</span>
+<span class="fc" id="L40">                app.score++;</span>
+<span class="fc" id="L41">                remainingTime--;</span>
+<span class="fc" id="L42">                app.timer.setTime(remainingTime);</span>
+<span class="fc" id="L43">                lastUpdateTime = currentTime;</span>
 
             }
         }
-<span class="nc" id="L47">    }</span>
+<span class="fc" id="L47">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

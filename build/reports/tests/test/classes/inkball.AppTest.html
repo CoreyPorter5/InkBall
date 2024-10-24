@@ -1,15 +1,85 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="inkball.PlayerDrawnLineTest" tests="3" skipped="0" failures="1" errors="0" timestamp="2024-10-24T03:38:29" hostname="linux-mint" time="0.121">
-  <properties/>
-  <testcase name="testBallAndPlayerLineCollision()" classname="inkball.PlayerDrawnLineTest" time="0.002"/>
-  <testcase name="testLineDrawing()" classname="inkball.PlayerDrawnLineTest" time="0.052"/>
-  <testcase name="testCollisionHandlerBallPlayerLine()" classname="inkball.PlayerDrawnLineTest" time="0.065">
-    <failure message="org.opentest4j.AssertionFailedError: Ball X velocity did not update correctly ==&gt; expected: &lt;-2.0&gt; but was: &lt;2.0&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: Ball X velocity did not update correctly ==&gt; expected: &lt;-2.0&gt; but was: &lt;2.0&gt;
-	at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:55)
-	at org.junit.jupiter.api.AssertionUtils.failNotEqual(AssertionUtils.java:62)
-	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:86)
-	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1003)
-	at inkball.PlayerDrawnLineTest.testCollisionHandlerBallPlayerLine(PlayerDrawnLineTest.java:59)
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - AppTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>AppTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/inkball.html">inkball</a> &gt; AppTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">10</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">1</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">10.686s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox failures" id="successRate">
+<div class="percent">90%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Failed tests</a>
+</li>
+<li>
+<a href="#tab1">Tests</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Failed tests</h2>
+<div class="test">
+<a name="testDrawWhenGameEnded()"></a>
+<h3 class="failures">testDrawWhenGameEnded()</h3>
+<span class="code">
+<pre>java.lang.NullPointerException
+	at processing.core.PGraphics.image(PGraphics.java:3791)
+	at processing.core.PApplet.image(PApplet.java:12621)
+	at inkball.YellowTile.display(YellowTile.java:50)
+	at inkball.App.updateAndDisplayYellowTiles(App.java:524)
+	at inkball.App.draw(App.java:409)
+	at inkball.AppTest.testDrawWhenGameEnded(AppTest.java:117)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -94,8 +164,82 @@
 	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:71)
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
-</failure>
-  </testcase>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
+</pre>
+</span>
+</div>
+</div>
+<div id="tab1" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">testDrawPlayerLinesAreDrawn()</td>
+<td class="success">1.053s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenBallShouldBeRemoved()</td>
+<td class="success">1.196s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenBallShouldNotBeRemoved()</td>
+<td class="success">1.053s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenCountdownGreaterThanZeroCountdownDecrements()</td>
+<td class="success">1.053s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenCountdownZeroSpawnsBallAndResetsCountdown()</td>
+<td class="success">1.055s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="failures">testDrawWhenGameEnded()</td>
+<td class="failures">1.055s</td>
+<td class="failures">failed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenLevelWin()</td>
+<td class="success">1.055s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenLevelWinIsTrue()</td>
+<td class="success">1.055s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenPaused()</td>
+<td class="success">1.058s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDrawWhenTimerZero()</td>
+<td class="success">1.053s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.10.2</a> at 24/10/2024 2:38:52 PM</p>
+</div>
+</div>
+</body>
+</html>

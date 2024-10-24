@@ -13,7 +13,7 @@ public class Ball extends GameObject implements Updatable {
     protected float radius = Board.BALLRADIUS;
     private final float originalRadius = Board.BALLRADIUS;
     private float originalXVelocity, originalYVelocity;
-    private int colour;
+    protected int colour;
 
 
     public Ball(int x, int y, int colour, Board board, App app) {

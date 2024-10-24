@@ -2,7 +2,7 @@ package inkball;
 
 
 
-public class Timer {
+public class Timer implements Updatable{
 
     private int time;
     private App app;
@@ -17,6 +17,7 @@ public class Timer {
         this.paused = false;
     }
 
+    @Override
     public void update(){
         if(!paused && !app.levelWin){
             int currentTime = app.millis();

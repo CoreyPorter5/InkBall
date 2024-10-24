@@ -13,7 +13,7 @@ public class Ball extends GameObject implements Updatable {
 <span class="fc" id="L13">    protected float radius = Board.BALLRADIUS;</span>
 <span class="fc" id="L14">    private final float originalRadius = Board.BALLRADIUS;</span>
     private float originalXVelocity, originalYVelocity;
-    private int colour;
+    protected int colour;
 
 
     public Ball(int x, int y, int colour, Board board, App app) {
@@ -49,14 +49,14 @@ public class Ball extends GameObject implements Updatable {
 <span class="fc" id="L49">            PVector holeCentre = new PVector(hole.getCentreX(), hole.getCentreY());</span>
 <span class="fc" id="L50">            PVector ballPos = new PVector(x, y);</span>
 <span class="fc" id="L51">            float distance = PVector.dist(ballPos, holeCentre);</span>
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">            if (distance &lt; 5.5) {</span>
-<span class="nc bnc" id="L53" title="All 6 branches missed.">                if(hole.getColor() == this.colour || this.colour == 0 || hole.getColor() == 0){</span>
-<span class="nc" id="L54">                    app.increaseScore(hole.getColor());</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (distance &lt; 5.5) {</span>
+<span class="pc bpc" id="L53" title="1 of 6 branches missed.">                if(hole.getColor() == this.colour || this.colour == 0 || hole.getColor() == 0){</span>
+<span class="fc" id="L54">                    app.increaseScore(hole.getColor());</span>
                 }else{
-<span class="nc" id="L56">                    app.decreaseScore(hole.getColor());</span>
-<span class="nc" id="L57">                    app.requeueBall(this);</span>
+<span class="fc" id="L56">                    app.decreaseScore(hole.getColor());</span>
+<span class="fc" id="L57">                    app.requeueBall(this);</span>
                 }
-<span class="nc" id="L59">                return true;</span>
+<span class="fc" id="L59">                return true;</span>
 
 
             }
@@ -67,36 +67,36 @@ public class Ball extends GameObject implements Updatable {
 
 
     public void setX_velocity(float x_velocity){
-<span class="nc" id="L70">        this.x_velocity = x_velocity;</span>
-<span class="nc" id="L71">    }</span>
+<span class="fc" id="L70">        this.x_velocity = x_velocity;</span>
+<span class="fc" id="L71">    }</span>
 
     public void setY_velocity(float y_velocity){
-<span class="nc" id="L74">        this.y_velocity = y_velocity;</span>
-<span class="nc" id="L75">    }</span>
+<span class="fc" id="L74">        this.y_velocity = y_velocity;</span>
+<span class="fc" id="L75">    }</span>
 
     public void updateRadius(float factor){
-<span class="nc" id="L78">        this.radius *= factor;</span>
-<span class="nc" id="L79">    }</span>
+<span class="fc" id="L78">        this.radius *= factor;</span>
+<span class="fc" id="L79">    }</span>
 
     public void resetRadius(){
 <span class="nc" id="L82">        this.radius = originalRadius;</span>
 <span class="nc" id="L83">    }</span>
 
     public void applyAttractionForce(PVector force){
-<span class="nc" id="L86">        this.x_velocity += force.x;</span>
-<span class="nc" id="L87">        this.y_velocity += force.y;</span>
-<span class="nc" id="L88">    }</span>
+<span class="fc" id="L86">        this.x_velocity += force.x;</span>
+<span class="fc" id="L87">        this.y_velocity += force.y;</span>
+<span class="fc" id="L88">    }</span>
 
 
     public void changeColour(int newColour){
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if(newColour == 0){</span>
-<span class="nc" id="L93">            return;</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if(newColour == 0){</span>
+<span class="fc" id="L93">            return;</span>
         }
-<span class="nc" id="L95">        this.colour = newColour;</span>
-<span class="nc" id="L96">        this.setImage(board.getBallImage(newColour));</span>
+<span class="fc" id="L95">        this.colour = newColour;</span>
+<span class="fc" id="L96">        this.setImage(board.getBallImage(newColour));</span>
 
 
-<span class="nc" id="L99">    }</span>
+<span class="fc" id="L99">    }</span>
 
 
 
@@ -122,11 +122,11 @@ public class Ball extends GameObject implements Updatable {
 
         //Handles collisions with boarder
 
-<span class="pc bpc" id="L125" title="2 of 4 branches missed.">        if (x - radius &lt; 0 || x + radius &gt; App.WIDTH) {</span>
-<span class="nc" id="L126">            x_velocity *= -1;</span>
+<span class="pc bpc" id="L125" title="1 of 4 branches missed.">        if (x - radius &lt; 0 || x + radius &gt; App.WIDTH) {</span>
+<span class="fc" id="L126">            x_velocity *= -1;</span>
         }
-<span class="pc bpc" id="L128" title="2 of 4 branches missed.">        if (y - radius &lt; App.TOPBAR || y + radius &gt; App.HEIGHT) {</span>
-<span class="nc" id="L129">            y_velocity *= -1;</span>
+<span class="pc bpc" id="L128" title="1 of 4 branches missed.">        if (y - radius &lt; App.TOPBAR || y + radius &gt; App.HEIGHT) {</span>
+<span class="fc" id="L129">            y_velocity *= -1;</span>
         }
 
 
@@ -139,7 +139,7 @@ public class Ball extends GameObject implements Updatable {
 <span class="fc" id="L139">    }</span>
 
     public int getColour(){
-<span class="nc" id="L142">        return colour;</span>
+<span class="fc" id="L142">        return colour;</span>
     }
 
 

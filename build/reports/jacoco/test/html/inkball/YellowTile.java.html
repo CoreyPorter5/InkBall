@@ -3,42 +3,51 @@
 import processing.core.PApplet;
 import processing.core.PImage;
 
-public class YellowTile {
+public class YellowTile implements Updatable {
     private int x, y;
     private PImage image;
     private App app;
     private int lastUpdateTime;
 
-<span class="nc" id="L12">    public YellowTile(int x, int y, PImage image, App app) {</span>
-<span class="nc" id="L13">        this.x = x;</span>
-<span class="nc" id="L14">        this.y = y;</span>
-<span class="nc" id="L15">        this.image = image;</span>
-<span class="nc" id="L16">        this.app = app;</span>
-<span class="nc" id="L17">        this.lastUpdateTime = app.millis();</span>
-<span class="nc" id="L18">    }</span>
+<span class="fc" id="L12">    public YellowTile(int x, int y, PImage image, App app) {</span>
+<span class="fc" id="L13">        this.x = x;</span>
+<span class="fc" id="L14">        this.y = y;</span>
+<span class="fc" id="L15">        this.image = image;</span>
+<span class="fc" id="L16">        this.app = app;</span>
+<span class="fc" id="L17">        this.lastUpdateTime = app.millis();</span>
+<span class="fc" id="L18">    }</span>
 
+    @Override
     public void update() {
-<span class="nc" id="L21">        int currentTime = app.millis();</span>
-<span class="nc bnc" id="L22" title="All 2 branches missed.">        if (currentTime - lastUpdateTime &gt;= 67) {</span>
-<span class="nc" id="L23">            moveClockwise();</span>
-<span class="nc" id="L24">            lastUpdateTime = currentTime;</span>
+<span class="fc" id="L22">        int currentTime = app.millis();</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (currentTime - lastUpdateTime &gt;= 67) {</span>
+<span class="fc" id="L24">            moveClockwise();</span>
+<span class="fc" id="L25">            lastUpdateTime = currentTime;</span>
         }
-<span class="nc" id="L26">    }</span>
+<span class="fc" id="L27">    }</span>
 
-    private void moveClockwise() {
-<span class="nc bnc" id="L29" title="All 4 branches missed.">        if (y == App.TOPBAR &amp;&amp; x &lt; app.width - App.CELLSIZE) {</span>
-<span class="nc" id="L30">            x += App.CELLSIZE;</span>
-<span class="nc bnc" id="L31" title="All 4 branches missed.">        } else if (x == app.width - App.CELLSIZE &amp;&amp; y &lt; app.height - App.CELLSIZE) {</span>
-<span class="nc" id="L32">            y += App.CELLSIZE;</span>
-<span class="nc bnc" id="L33" title="All 4 branches missed.">        } else if (y == app.height - App.CELLSIZE &amp;&amp; x &gt; 0) {</span>
-<span class="nc" id="L34">            x -= App.CELLSIZE;</span>
-<span class="nc bnc" id="L35" title="All 4 branches missed.">        } else if (x == 0 &amp;&amp; y &gt; App.TOPBAR) {</span>
-<span class="nc" id="L36">            y -= App.CELLSIZE;</span>
+    protected int getX(){
+<span class="fc" id="L30">        return this.x;</span>
+    }
+
+    protected int getY(){
+<span class="fc" id="L34">        return this.y;</span>
+    }
+
+    protected void moveClockwise() {
+<span class="pc bpc" id="L38" title="1 of 4 branches missed.">        if (y == App.TOPBAR &amp;&amp; x &lt; app.width - App.CELLSIZE) {</span>
+<span class="fc" id="L39">            x += App.CELLSIZE;</span>
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">        } else if (x == app.width - App.CELLSIZE &amp;&amp; y &lt; app.height - App.CELLSIZE) {</span>
+<span class="fc" id="L41">            y += App.CELLSIZE;</span>
+<span class="fc bfc" id="L42" title="All 4 branches covered.">        } else if (y == app.height - App.CELLSIZE &amp;&amp; x &gt; 0) {</span>
+<span class="fc" id="L43">            x -= App.CELLSIZE;</span>
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        } else if (x == 0 &amp;&amp; y &gt; App.TOPBAR) {</span>
+<span class="fc" id="L45">            y -= App.CELLSIZE;</span>
         }
-<span class="nc" id="L38">    }</span>
+<span class="fc" id="L47">    }</span>
 
     public void display() {
-<span class="nc" id="L41">        app.image(image, x, y, App.CELLSIZE, App.CELLSIZE);</span>
-<span class="nc" id="L42">    }</span>
+<span class="fc" id="L50">        app.image(image, x, y, App.CELLSIZE, App.CELLSIZE);</span>
+<span class="fc" id="L51">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

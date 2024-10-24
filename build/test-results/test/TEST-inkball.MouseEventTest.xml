@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="inkball.MouseEventTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2024-10-23T10:25:46" hostname="linux-mint" time="0.014">
+<testsuite name="inkball.MouseEventTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2024-10-24T03:38:48" hostname="linux-mint" time="4.384">
   <properties/>
-  <testcase name="testMouseReleasedRight()" classname="inkball.MouseEventTest" time="0.013"/>
+  <testcase name="mousePressedLeftTest()" classname="inkball.MouseEventTest" time="1.121"/>
+  <testcase name="testMouseReleasedLeft()" classname="inkball.MouseEventTest" time="1.083"/>
+  <testcase name="testMouseReleasedRight()" classname="inkball.MouseEventTest" time="0.001"/>
+  <testcase name="testRKeyRestartsLevel()" classname="inkball.MouseEventTest" time="1.086"/>
+  <testcase name="testSpaceKeyTogglesPause()" classname="inkball.MouseEventTest" time="1.09"/>
   <testcase name="testMouseReleasedLeftwithCTRL()" classname="inkball.MouseEventTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
+  <system-err><![CDATA[java.lang.IndexOutOfBoundsException: Index: 3, Size: 3
+	at java.util.ArrayList.rangeCheck(ArrayList.java:659)
+	at java.util.ArrayList.get(ArrayList.java:435)
+	at inkball.BallQueue.displayNextBalls(BallQueue.java:59)
+	at inkball.App.draw(App.java:391)
+	at processing.core.PApplet.handleDraw(PApplet.java:2426)
+	at processing.awt.PSurfaceAWT$12.callDraw(PSurfaceAWT.java:1557)
+	at processing.core.PSurfaceNone$AnimationThread.run(PSurfaceNone.java:316)
+]]></system-err>
 </testsuite>

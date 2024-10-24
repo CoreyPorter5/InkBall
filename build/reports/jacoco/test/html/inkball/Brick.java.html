@@ -25,18 +25,18 @@ public class Brick extends GameObject {
 
 
     public void hit() {
-<span class="nc" id="L28">        currentHits++;</span>
-<span class="nc bnc" id="L29" title="All 2 branches missed.">        if (currentHits &gt;= maxHits) {</span>
-<span class="nc" id="L30">            board.removeBrick(this);</span>
+<span class="fc" id="L28">        currentHits++;</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (currentHits &gt;= maxHits) {</span>
+<span class="fc" id="L30">            board.removeBrick(this);</span>
         } else {
-<span class="nc" id="L32">            setImage(crackedBrick);</span>
+<span class="fc" id="L32">            setImage(crackedBrick);</span>
         }
-<span class="nc" id="L34">    }</span>
+<span class="fc" id="L34">    }</span>
 
 
 
     public boolean canBeDamagedBy(int ballColour){
-<span class="nc bnc" id="L39" title="All 6 branches missed.">        return ballColour == 0 || this.colour == ballColour || this.colour == 0;</span>
+<span class="fc bfc" id="L39" title="All 6 branches covered.">        return ballColour == 0 || this.colour == ballColour || this.colour == 0;</span>
     }
 
     public void display(PApplet app) {
